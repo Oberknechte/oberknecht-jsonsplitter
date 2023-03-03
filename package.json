@@ -1,6 +1,6 @@
 {
   "name": "@jubewe/jsonsplitter",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -18,6 +18,6 @@
   "homepage": "https://github.com/jubewe/jsonsplitter#readme",
   "dependencies": {
     "fs": "^0.0.1-security",
-    "oberknecht-emitters": "^0.0.1"
+    "oberknecht-emitters": "*"
   }
 }
