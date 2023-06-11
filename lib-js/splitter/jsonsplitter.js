@@ -559,7 +559,7 @@ class jsonsplitter {
                 break;
             }
             case "array": {
-                newvalue.concat(value);
+                newvalue.push(...(0, oberknecht_utils_1.convertToArray)(value));
                 break;
             }
             case "string":

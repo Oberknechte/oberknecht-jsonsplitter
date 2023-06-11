@@ -759,7 +759,7 @@ export class jsonsplitter {
       }
 
       case "array": {
-        newvalue.concat(value);
+        newvalue.push(...convertToArray(value));
         break;
       }
 
