@@ -1,10 +1,11 @@
 {
   "name": "@jubewe/jsonsplitter",
-  "version": "0.7.2",
+  "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "export",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,12 @@
   "homepage": "https://github.com/jubewe/jsonsplitter#readme",
   "dependencies": {
     "fs": "^0.0.1-security",
-    "oberknecht-emitters": "*",
+    "oberknecht-emitters": "^1.0.2",
+    "oberknecht-utils": "^1.1.9",
     "regex-escape": "^3.4.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.2.5",
+    "typescript": "^5.2.0-dev.20230609"
   }
 }

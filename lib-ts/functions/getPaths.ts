@@ -1,0 +1,33 @@
+import path from "path";
+import { i } from "..";
+import fs from "fs";
+import { _mainpath } from "./_mainpath";
+import { correctpath } from "./correctpath";
+
+export function getPaths(sym: string) {
+  let paths = {};
+  function rd(dirpath: string) {
+    let dir = fs.readdirSync(dirpath, { withFileTypes: true });
+
+    dir
+      .filter((a) => a.isFile() && a.name !== "_main.json")
+      .forEach((path_) => {
+        paths[correctpath(path.resolve(dirpath, path_.name))] = path
+          .resolve(dirpath, path_.name)
+          .replace(_mainpath(sym), "")
+          .replace(/^\/|\/$/g, "");
+      });
+
+    dir
+      .filter((a) => a.isDirectory())
+      .forEach((dir_) => {
+        rd(path.resolve(dirpath, dir_.name));
+      });
+  }
+
+  rd(i.splitterData[sym]._options.startpath);
+
+  i.splitterData[sym].paths = paths;
+
+  return paths;
+}
