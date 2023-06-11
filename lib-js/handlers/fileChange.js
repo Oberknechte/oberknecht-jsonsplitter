@@ -8,7 +8,7 @@ async function fileChange(sym, auto) {
     return new Promise((resolve) => {
         let changed_files = 0;
         __1.i.oberknechtEmitter[sym].emit("filechange", `${auto ? "[Automatic] " : ""} Executed`);
-        if (__1.i.splitterData[sym]._options?.debug >= 2)
+        if (__1.i.splitterData[sym]._options?.debug > 2)
             (0, _log_1._log)(0, `[JSONSPLITTER] [FILECHANGE] ${auto ? "[Automatic] " : ""} Executed`);
         if (!__1.i.splitterData[sym]?.actualFiles)
             return;
@@ -30,7 +30,7 @@ async function fileChange(sym, auto) {
             (0, _wf_1._wf)(sym, mainfilepath, mainFile);
         });
         __1.i.oberknechtEmitter[sym].emit("filechange", `${auto ? "[Automatic] " : ""}Finished, changed ${changed_files} files`);
-        if (__1.i.splitterData[sym]._options?.debug >= 2)
+        if (__1.i.splitterData[sym]._options?.debug > 2)
             (0, _log_1._log)(0, `[JSONSPLITTER] [FILECHANGE] ${auto ? "[Automatic] " : ""} Changed ${changed_files} files`);
         resolve();
     });

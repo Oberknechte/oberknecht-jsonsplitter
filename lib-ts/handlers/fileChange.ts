@@ -9,7 +9,7 @@ export async function fileChange(sym: string, auto?: boolean) {
       "filechange",
       `${auto ? "[Automatic] " : ""} Executed`
     );
-    if (i.splitterData[sym]._options?.debug >= 2)
+    if (i.splitterData[sym]._options?.debug > 2)
       _log(
         0,
         `[JSONSPLITTER] [FILECHANGE] ${auto ? "[Automatic] " : ""} Executed`
@@ -36,7 +36,7 @@ export async function fileChange(sym: string, auto?: boolean) {
       "filechange",
       `${auto ? "[Automatic] " : ""}Finished, changed ${changed_files} files`
     );
-    if (i.splitterData[sym]._options?.debug >= 2)
+    if (i.splitterData[sym]._options?.debug > 2)
       _log(
         0,
         `[JSONSPLITTER] [FILECHANGE] ${
