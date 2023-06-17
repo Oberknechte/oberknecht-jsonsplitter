@@ -2,7 +2,7 @@ import { i } from "..";
 import { _log } from "./_log";
 
 export function clearCacheSmart(sym: string, excludeMainFiles?: boolean) {
-  if (i.splitterData[sym]._options?.debug >= 2)
+  if (i.splitterData[sym]._options?.debug > 2)
     _log(0, `[CACHE] [SMART] Clearing`);
   let clearedFiles = 0;
   let clearedMainFiles = 0;
@@ -44,7 +44,7 @@ export function clearCacheSmart(sym: string, excludeMainFiles?: boolean) {
   let filesnum = Object.keys(i.splitterData[sym].actualFiles).length;
   let mainfilesnum = Object.keys(i.splitterData[sym].actualMainFiles).length;
 
-  if (i.splitterData[sym]._options?.debug >= 2)
+  if (i.splitterData[sym]._options?.debug > 2)
     _log(
       0,
       `[CACHE] [SMART] Cleared ${clearedFiles} Files (${

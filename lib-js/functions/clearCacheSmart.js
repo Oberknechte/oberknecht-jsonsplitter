@@ -4,7 +4,7 @@ exports.clearCacheSmart = void 0;
 const __1 = require("..");
 const _log_1 = require("./_log");
 function clearCacheSmart(sym, excludeMainFiles) {
-    if (__1.i.splitterData[sym]._options?.debug >= 2)
+    if (__1.i.splitterData[sym]._options?.debug > 2)
         (0, _log_1._log)(0, `[CACHE] [SMART] Clearing`);
     let clearedFiles = 0;
     let clearedMainFiles = 0;
@@ -32,7 +32,7 @@ function clearCacheSmart(sym, excludeMainFiles) {
     }
     let filesnum = Object.keys(__1.i.splitterData[sym].actualFiles).length;
     let mainfilesnum = Object.keys(__1.i.splitterData[sym].actualMainFiles).length;
-    if (__1.i.splitterData[sym]._options?.debug >= 2)
+    if (__1.i.splitterData[sym]._options?.debug > 2)
         (0, _log_1._log)(0, `[CACHE] [SMART] Cleared ${clearedFiles} Files (${filesnum + clearedFiles} → ${filesnum}) and ${clearedMainFiles} Mainfiles (${mainfilesnum + clearedMainFiles} → ${mainfilesnum})`);
 }
 exports.clearCacheSmart = clearCacheSmart;
