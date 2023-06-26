@@ -499,7 +499,6 @@ export class jsonsplitter {
     this.addAction(`getKeySync`);
     let keypath_ = convertToArray(keypath);
     let objpath = this.getFileByKeys(keypath_);
-    console.log(objpath);
 
     if (keypath_.length > 1) {
       if (!objpath.keyfound) {
