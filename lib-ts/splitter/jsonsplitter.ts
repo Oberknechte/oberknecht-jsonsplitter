@@ -22,7 +22,7 @@ import {
 } from "../types/jsonsplitter";
 
 const slashreg = /^\/|\/$/g;
-const _mainreg = /_main\.json$/g;
+const _mainreg = /_main\.json$/;
 
 let clientSymNum = 0;
 
@@ -119,14 +119,17 @@ export class jsonsplitter {
 
   create = (object: Record<string, any>) => {
     return new Promise((resolve, reject) => {
+      let this_ = this;
+
       let objdir = this.getDirPathsByObject(object);
-      objdir.forEach((obj: Record<string, any>) => {
-        _cdir(this.symbol, _mainpath(this.symbol, [...obj.path]));
-        let objmainpath = _mainpath(this.symbol, [...obj.path, "_main.json"]);
+
+      function actualCreate(obj: Record<string, any>) {
+        _cdir(this_.symbol, _mainpath(this_.symbol, [...obj.path]));
+        let objmainpath = _mainpath(this_.symbol, [...obj.path, "_main.json"]);
         let objmain: Record<string, any> = {};
         let keychunks = chunkArray(
           Object.keys(obj.object),
-          this._options.max_keys_in_file
+          this_._options.max_keys_in_file
         );
         objmain.filenum = 0;
         objmain.filekeynum = 0;
@@ -135,9 +138,9 @@ export class jsonsplitter {
         objmain.keynames = obj.path;
         if (keychunks.length === 0)
           _wf(
-            this.symbol,
-            _mainpath(this.symbol, [...obj.path, `0.json`]),
-            this.createObjectFromKeys(obj.path, {})
+            this_.symbol,
+            _mainpath(this_.symbol, [...obj.path, `0.json`]),
+            this_.createObjectFromKeys(obj.path, {})
           );
         keychunks.forEach((keychunk, i) => {
           let keychunk_ = {};
@@ -148,16 +151,28 @@ export class jsonsplitter {
             keychunk_[a] = obj.object[a];
             objmain.keys[a] = i;
           });
-          let chunkfile = this.createObjectFromKeys(obj.path, keychunk_);
+
+          let chunkfile = this_.createObjectFromKeys(obj.path, keychunk_);
           _wf(
-            this.symbol,
-            _mainpath(this.symbol, [...obj.path, `${i}.json`]),
+            this_.symbol,
+            _mainpath(this_.symbol, [...obj.path, `${i}.json`]),
             chunkfile
           );
         });
 
-        _wf(this.symbol, objmainpath, objmain);
-      });
+        _wf(this_.symbol, objmainpath, objmain);
+      }
+
+      function fromArr(a: any[]) {
+        if (!Array.isArray(a)) return actualCreate(a);
+
+        a.forEach((b) => {
+          if (Array.isArray(b)) return fromArr(b);
+          actualCreate(b);
+        });
+      }
+
+      fromArr(objdir);
 
       return resolve(objdir);
     });
@@ -248,15 +263,19 @@ export class jsonsplitter {
       dp,
       dp
         .split("/")
-        .slice(0, dp.split("/").length - rp.split("/").length + 1)
+        // .slice(0, dp.split("/").length - rp.split("/").length + 1)
+        .slice(0, this._options.max_keys_in_file)
         .join("/"),
+      rp,
+      // dp
+      // .split("/")
+      // .slice(dp.split("/").length - rp.split("/").length + 1)
+      // .slice(0, this._options.max_keys_in_file)
+      // .join("/"),
       dp
         .split("/")
-        .slice(dp.split("/").length - rp.split("/").length + 1)
-        .join("/"),
-      dp
-        .split("/")
-        .slice(0, dp.split("/").length - rp.split("/").length + 1)
+        // .slice(0, dp.split("/").length - rp.split("/").length + 1)
+        .slice(0, this._options.max_keys_in_file)
         .join("/") + "/_main.json",
     ];
   };
@@ -267,10 +286,14 @@ export class jsonsplitter {
   ): Record<string, any> => {
     let o = {};
     let keys_ = convertToArray(keys);
-    keys_.forEach((a, i) => {
-      if (i === keys_.length - 1) o[a] = value;
-      else o[a] = {};
-    });
+    function actualAppend(i, o2) {
+      o2[keys_[i]] = {};
+      if (i < keys_.length - 1) actualAppend(i + 1, o2[keys_[i]]);
+      else o2[keys_[i]] = value;
+    }
+
+    actualAppend(0, o);
+
     return o;
   };
 
@@ -319,12 +342,21 @@ export class jsonsplitter {
       object_main: undefined,
       keyfound: false,
       filenum: undefined,
+      leftkeys: undefined,
+      keynamesmatched: false,
     };
-    for (let i = 0; i < keypath.length; i++) {
-      let dirpathkeys = this.getDirPathsByKeys(keypath.slice(0, i + 1));
+
+    let lastI = 0;
+    let keynamesmatched = false;
+
+    const keypath_ = convertToArray(keypath);
+
+    for (let i = 0; i < keypath_.length; i++) {
+      let dirpathkeys = this.getDirPathsByKeys(keypath_.slice(0, i + 1));
       let filteredkeypath = Object.keys(this._mainpaths).filter((b) =>
-        new RegExp(`^${dirpathkeys[1]}\/_main\.json`).test(b)
+        new RegExp(`^${dirpathkeys[0]}\/_main\.json$`).test(b)
       );
+
       if (filteredkeypath.length > 0) {
         r.path_main = filteredkeypath[0];
         r.object_main = this._mainfiles[r.path_main];
@@ -333,15 +365,25 @@ export class jsonsplitter {
           a.startsWith(r.dirpath)
         );
         r.filenum = r.object_main().filenum;
-        if (
-          (r.object_main()?.keys?.[keypath[i + 1]] ?? undefined) !== undefined
-        ) {
-          r.filenum = r.object_main().keys[keypath[i + 1]];
+
+        let filenum_ = this.getKeyFromObjectSync(r.object_main(), [
+          "keys",
+          ...keypath_.slice(i),
+        ]);
+        let keynamesmatch =
+          r.object_main()?.keynames.join("\u0001") ===
+          keypath_.slice(0, i + 1).join("\u0001");
+
+        if (filenum_ !== undefined || keynamesmatch) {
+          if (filenum_) r.filenum = r.object_main().keys[keypath_[i + 1]];
           r.keyfound = true;
+          if (keynamesmatch) keynamesmatched = true;
         }
         r.path = r.path_main.replace(_mainreg, `${r.filenum}.json`);
         r.object = this._files[r.path];
-        i = keypath.length;
+        i = keypath_.length;
+      } else {
+        lastI++;
       }
     }
 
@@ -365,27 +407,31 @@ export class jsonsplitter {
         return r.path_main;
       },
       get keys() {
-        return keypath;
+        return keypath_;
       },
       dirpath: r.dirpath,
       dirpaths: r.dirpaths,
       keyfound: r.keyfound,
       filenum: r.filenum,
+      leftkeys: keypath_.slice(lastI),
+      keynamesmatched: keynamesmatched,
     };
   };
 
   // ↓ Synchronus functions ↓
 
-  createSync = (object: Record<string, any>): string[][] => {
-    this.addAction("createSync");
+  createSync = (object: Record<string, any>) => {
+    let this_ = this;
+
     let objdir = this.getDirPathsByObject(object);
-    objdir.forEach((obj: Record<string, any>) => {
-      _cdir(this.symbol, _mainpath(this.symbol, [...obj.path]));
-      let objmainpath = _mainpath(this.symbol, [...obj.path, "_main.json"]);
+
+    function actualCreate(obj: Record<string, any>) {
+      _cdir(this_.symbol, _mainpath(this_.symbol, [...obj.path]));
+      let objmainpath = _mainpath(this_.symbol, [...obj.path, "_main.json"]);
       let objmain: Record<string, any> = {};
       let keychunks = chunkArray(
         Object.keys(obj.object),
-        this._options.max_keys_in_file
+        this_._options.max_keys_in_file
       );
       objmain.filenum = 0;
       objmain.filekeynum = 0;
@@ -394,9 +440,9 @@ export class jsonsplitter {
       objmain.keynames = obj.path;
       if (keychunks.length === 0)
         _wf(
-          this.symbol,
-          _mainpath(this.symbol, [...obj.path, `0.json`]),
-          this.createObjectFromKeys(obj.path, {})
+          this_.symbol,
+          _mainpath(this_.symbol, [...obj.path, `0.json`]),
+          this_.createObjectFromKeys(obj.path, {})
         );
       keychunks.forEach((keychunk, i) => {
         let keychunk_ = {};
@@ -407,16 +453,29 @@ export class jsonsplitter {
           keychunk_[a] = obj.object[a];
           objmain.keys[a] = i;
         });
-        let chunkfile = this.createObjectFromKeys(obj.path, keychunk_);
+
+        let chunkfile = this_.createObjectFromKeys(obj.path, keychunk_);
+
         _wf(
-          this.symbol,
-          _mainpath(this.symbol, [...obj.path, `${i}.json`]),
+          this_.symbol,
+          _mainpath(this_.symbol, [...obj.path, `${i}.json`]),
           chunkfile
         );
       });
 
-      _wf(this.symbol, objmainpath, objmain);
-    });
+      _wf(this_.symbol, objmainpath, objmain);
+    }
+
+    function fromArr(a: any[]) {
+      if (!Array.isArray(a)) return actualCreate(a);
+
+      a.forEach((b) => {
+        if (Array.isArray(b)) return fromArr(b);
+        actualCreate(b);
+      });
+    }
+
+    fromArr(objdir);
 
     return objdir;
   };
@@ -436,7 +495,7 @@ export class jsonsplitter {
     return this.getKeyFromObjectSync(objpath.object_main, keypath.slice(1));
   };
 
-  getKeySync = (keypath: string | string[], emiterr?: boolean): any => {
+  getKeySync = (keypath: string | string[], emitErr?: boolean): any => {
     this.addAction(`getKeySync`);
     let keypath_ = convertToArray(keypath);
     let objpath = this.getFileByKeys(keypath_);
@@ -444,17 +503,18 @@ export class jsonsplitter {
     if (keypath_.length > 1) {
       if (!objpath.keyfound) {
         let err = Error(`objpath.keyfound is false (keypath: ${keypath_})`);
-        if (emiterr) this.emitError(err);
+        if (emitErr) this.emitError(err);
         return undefined;
       }
 
+      if (!objpath.keyfound && objpath.keynamesmatched) return objpath.object;
       return this.getKeyFromObjectSync(objpath.object, keypath_);
     } else {
       if (!objpath.object_main) {
         let err = Error(
           `objpath.object_main is undefined (keypath: ${keypath_})`
         );
-        if (emiterr) this.emitError(err);
+        if (emitErr) this.emitError(err);
         return undefined;
       }
 
@@ -463,7 +523,11 @@ export class jsonsplitter {
         let file = this._files[
           objpath.path_main.replace(_mainreg, `${i}.json`)
         ]();
-        let objects = this.getKeyFromObjectSync(file, keypath_, emiterr);
+        let objects = this.getKeyFromObjectSync(
+          file,
+          objpath.leftkeys,
+          emitErr
+        );
         r = { ...r, ...objects };
       });
 
@@ -563,13 +627,7 @@ export class jsonsplitter {
     let mainpath = objpath.path_main;
     let filepath = objpath.path;
 
-    if (!objpath.object) {
-      let err = Error(
-        `file is undefined - could not get key from mainobject keys (keypath: ${keypath})`
-      );
-      this.emitError(err);
-      return undefined;
-    }
+    if (!objpath.object) return this.addKeySync(keypath_, value, nosilent);
 
     let newfile;
     if (
@@ -592,14 +650,14 @@ export class jsonsplitter {
       !nosilent
     )
       return true;
+
     return newfile;
   };
 
   editKeyAddSync = <nosilenttype extends boolean>(
     keypath: string | string[],
     value: any,
-    nosilent?: nosilenttype,
-    emiterr?: boolean
+    nosilent?: nosilenttype
   ): nosilenttype extends true ? fileType | boolean : boolean => {
     this.addAction(`editKeyAddSync`);
     let keypath_ = convertToArray(keypath);
@@ -608,13 +666,7 @@ export class jsonsplitter {
     let mainpath = objpath.path_main;
     let filepath = objpath.path;
 
-    if (!objpath.object) {
-      let err = Error(
-        `file is undefined - could not get key from mainobject keys (keypath: ${keypath})`
-      );
-      if (emiterr) this.emitError(err);
-      return undefined;
-    }
+    if (!objpath.object) return this.editKeySync(keypath_, value, nosilent);
 
     let newfile;
     if (
@@ -956,6 +1008,7 @@ export class jsonsplitter {
 
       if (keypath_.length > 1) {
         if (!objpath.keyfound) {
+          if (objpath.keynamesmatched) return resolve(objpath.object);
           let err = Error(
             `objpath.keyfound is false (keypath: ${keypath_}, noreject: ${noreject})`
           );
@@ -991,7 +1044,7 @@ export class jsonsplitter {
             let file = this._files[
               objpath.path_main.replace(_mainreg, `${i}.json`)
             ]();
-            let objects = await this.getKeyFromObject(file, keypath_);
+            let objects = await this.getKeyFromObject(file, objpath.leftkeys);
             r = { ...r, ...objects };
           })
         ).finally(() => {

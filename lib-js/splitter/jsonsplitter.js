@@ -20,7 +20,7 @@ const _log_1 = require("../functions/_log");
 const fs_1 = __importDefault(require("fs"));
 const getMainPaths_1 = require("../functions/getMainPaths");
 const slashreg = /^\/|\/$/g;
-const _mainreg = /_main\.json$/g;
+const _mainreg = /_main\.json$/;
 let clientSymNum = 0;
 class jsonsplitter {
     #symbol = `jsonsplitter-${clientSymNum++}`;
@@ -97,19 +97,20 @@ class jsonsplitter {
     };
     create = (object) => {
         return new Promise((resolve, reject) => {
+            let this_ = this;
             let objdir = this.getDirPathsByObject(object);
-            objdir.forEach((obj) => {
-                (0, _cdir_1._cdir)(this.symbol, (0, _mainpath_1._mainpath)(this.symbol, [...obj.path]));
-                let objmainpath = (0, _mainpath_1._mainpath)(this.symbol, [...obj.path, "_main.json"]);
+            function actualCreate(obj) {
+                (0, _cdir_1._cdir)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path]));
+                let objmainpath = (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, "_main.json"]);
                 let objmain = {};
-                let keychunks = (0, oberknecht_utils_1.chunkArray)(Object.keys(obj.object), this._options.max_keys_in_file);
+                let keychunks = (0, oberknecht_utils_1.chunkArray)(Object.keys(obj.object), this_._options.max_keys_in_file);
                 objmain.filenum = 0;
                 objmain.filekeynum = 0;
                 objmain.num = 0;
                 objmain.keys = {};
                 objmain.keynames = obj.path;
                 if (keychunks.length === 0)
-                    (0, _wf_1._wf)(this.symbol, (0, _mainpath_1._mainpath)(this.symbol, [...obj.path, `0.json`]), this.createObjectFromKeys(obj.path, {}));
+                    (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `0.json`]), this_.createObjectFromKeys(obj.path, {}));
                 keychunks.forEach((keychunk, i) => {
                     let keychunk_ = {};
                     objmain.num += keychunk.length;
@@ -119,11 +120,21 @@ class jsonsplitter {
                         keychunk_[a] = obj.object[a];
                         objmain.keys[a] = i;
                     });
-                    let chunkfile = this.createObjectFromKeys(obj.path, keychunk_);
-                    (0, _wf_1._wf)(this.symbol, (0, _mainpath_1._mainpath)(this.symbol, [...obj.path, `${i}.json`]), chunkfile);
+                    let chunkfile = this_.createObjectFromKeys(obj.path, keychunk_);
+                    (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `${i}.json`]), chunkfile);
                 });
-                (0, _wf_1._wf)(this.symbol, objmainpath, objmain);
-            });
+                (0, _wf_1._wf)(this_.symbol, objmainpath, objmain);
+            }
+            function fromArr(a) {
+                if (!Array.isArray(a))
+                    return actualCreate(a);
+                a.forEach((b) => {
+                    if (Array.isArray(b))
+                        return fromArr(b);
+                    actualCreate(b);
+                });
+            }
+            fromArr(objdir);
             return resolve(objdir);
         });
     };
@@ -188,27 +199,33 @@ class jsonsplitter {
             dp,
             dp
                 .split("/")
-                .slice(0, dp.split("/").length - rp.split("/").length + 1)
+                // .slice(0, dp.split("/").length - rp.split("/").length + 1)
+                .slice(0, this._options.max_keys_in_file)
                 .join("/"),
+            rp,
+            // dp
+            // .split("/")
+            // .slice(dp.split("/").length - rp.split("/").length + 1)
+            // .slice(0, this._options.max_keys_in_file)
+            // .join("/"),
             dp
                 .split("/")
-                .slice(dp.split("/").length - rp.split("/").length + 1)
-                .join("/"),
-            dp
-                .split("/")
-                .slice(0, dp.split("/").length - rp.split("/").length + 1)
+                // .slice(0, dp.split("/").length - rp.split("/").length + 1)
+                .slice(0, this._options.max_keys_in_file)
                 .join("/") + "/_main.json",
         ];
     };
     createObjectFromKeys = (keys, value) => {
         let o = {};
         let keys_ = (0, oberknecht_utils_1.convertToArray)(keys);
-        keys_.forEach((a, i) => {
-            if (i === keys_.length - 1)
-                o[a] = value;
+        function actualAppend(i, o2) {
+            o2[keys_[i]] = {};
+            if (i < keys_.length - 1)
+                actualAppend(i + 1, o2[keys_[i]]);
             else
-                o[a] = {};
-        });
+                o2[keys_[i]] = value;
+        }
+        actualAppend(0, o);
         return o;
     };
     getKeyArrayFromObject = (object) => {
@@ -251,23 +268,40 @@ class jsonsplitter {
             object_main: undefined,
             keyfound: false,
             filenum: undefined,
+            leftkeys: undefined,
+            keynamesmatched: false,
         };
-        for (let i = 0; i < keypath.length; i++) {
-            let dirpathkeys = this.getDirPathsByKeys(keypath.slice(0, i + 1));
-            let filteredkeypath = Object.keys(this._mainpaths).filter((b) => new RegExp(`^${dirpathkeys[1]}\/_main\.json`).test(b));
+        let lastI = 0;
+        let keynamesmatched = false;
+        const keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
+        for (let i = 0; i < keypath_.length; i++) {
+            let dirpathkeys = this.getDirPathsByKeys(keypath_.slice(0, i + 1));
+            let filteredkeypath = Object.keys(this._mainpaths).filter((b) => new RegExp(`^${dirpathkeys[0]}\/_main\.json$`).test(b));
             if (filteredkeypath.length > 0) {
                 r.path_main = filteredkeypath[0];
                 r.object_main = this._mainfiles[r.path_main];
                 r.dirpath = dirpathkeys[1];
                 r.dirpaths = Object.keys(this._paths).filter((a) => a.startsWith(r.dirpath));
                 r.filenum = r.object_main().filenum;
-                if ((r.object_main()?.keys?.[keypath[i + 1]] ?? undefined) !== undefined) {
-                    r.filenum = r.object_main().keys[keypath[i + 1]];
+                let filenum_ = this.getKeyFromObjectSync(r.object_main(), [
+                    "keys",
+                    ...keypath_.slice(i),
+                ]);
+                let keynamesmatch = r.object_main()?.keynames.join("\u0001") ===
+                    keypath_.slice(0, i + 1).join("\u0001");
+                if (filenum_ !== undefined || keynamesmatch) {
+                    if (filenum_)
+                        r.filenum = r.object_main().keys[keypath_[i + 1]];
                     r.keyfound = true;
+                    if (keynamesmatch)
+                        keynamesmatched = true;
                 }
                 r.path = r.path_main.replace(_mainreg, `${r.filenum}.json`);
                 r.object = this._files[r.path];
-                i = keypath.length;
+                i = keypath_.length;
+            }
+            else {
+                lastI++;
             }
         }
         return {
@@ -290,30 +324,32 @@ class jsonsplitter {
                 return r.path_main;
             },
             get keys() {
-                return keypath;
+                return keypath_;
             },
             dirpath: r.dirpath,
             dirpaths: r.dirpaths,
             keyfound: r.keyfound,
             filenum: r.filenum,
+            leftkeys: keypath_.slice(lastI),
+            keynamesmatched: keynamesmatched,
         };
     };
     // ↓ Synchronus functions ↓
     createSync = (object) => {
-        this.addAction("createSync");
+        let this_ = this;
         let objdir = this.getDirPathsByObject(object);
-        objdir.forEach((obj) => {
-            (0, _cdir_1._cdir)(this.symbol, (0, _mainpath_1._mainpath)(this.symbol, [...obj.path]));
-            let objmainpath = (0, _mainpath_1._mainpath)(this.symbol, [...obj.path, "_main.json"]);
+        function actualCreate(obj) {
+            (0, _cdir_1._cdir)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path]));
+            let objmainpath = (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, "_main.json"]);
             let objmain = {};
-            let keychunks = (0, oberknecht_utils_1.chunkArray)(Object.keys(obj.object), this._options.max_keys_in_file);
+            let keychunks = (0, oberknecht_utils_1.chunkArray)(Object.keys(obj.object), this_._options.max_keys_in_file);
             objmain.filenum = 0;
             objmain.filekeynum = 0;
             objmain.num = 0;
             objmain.keys = {};
             objmain.keynames = obj.path;
             if (keychunks.length === 0)
-                (0, _wf_1._wf)(this.symbol, (0, _mainpath_1._mainpath)(this.symbol, [...obj.path, `0.json`]), this.createObjectFromKeys(obj.path, {}));
+                (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `0.json`]), this_.createObjectFromKeys(obj.path, {}));
             keychunks.forEach((keychunk, i) => {
                 let keychunk_ = {};
                 objmain.num += keychunk.length;
@@ -323,11 +359,21 @@ class jsonsplitter {
                     keychunk_[a] = obj.object[a];
                     objmain.keys[a] = i;
                 });
-                let chunkfile = this.createObjectFromKeys(obj.path, keychunk_);
-                (0, _wf_1._wf)(this.symbol, (0, _mainpath_1._mainpath)(this.symbol, [...obj.path, `${i}.json`]), chunkfile);
+                let chunkfile = this_.createObjectFromKeys(obj.path, keychunk_);
+                (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `${i}.json`]), chunkfile);
             });
-            (0, _wf_1._wf)(this.symbol, objmainpath, objmain);
-        });
+            (0, _wf_1._wf)(this_.symbol, objmainpath, objmain);
+        }
+        function fromArr(a) {
+            if (!Array.isArray(a))
+                return actualCreate(a);
+            a.forEach((b) => {
+                if (Array.isArray(b))
+                    return fromArr(b);
+                actualCreate(b);
+            });
+        }
+        fromArr(objdir);
         return objdir;
     };
     getMainKeySync = (keypath) => {
@@ -340,30 +386,32 @@ class jsonsplitter {
         }
         return this.getKeyFromObjectSync(objpath.object_main, keypath.slice(1));
     };
-    getKeySync = (keypath, emiterr) => {
+    getKeySync = (keypath, emitErr) => {
         this.addAction(`getKeySync`);
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
         let objpath = this.getFileByKeys(keypath_);
         if (keypath_.length > 1) {
             if (!objpath.keyfound) {
                 let err = Error(`objpath.keyfound is false (keypath: ${keypath_})`);
-                if (emiterr)
+                if (emitErr)
                     this.emitError(err);
                 return undefined;
             }
+            if (!objpath.keyfound && objpath.keynamesmatched)
+                return objpath.object;
             return this.getKeyFromObjectSync(objpath.object, keypath_);
         }
         else {
             if (!objpath.object_main) {
                 let err = Error(`objpath.object_main is undefined (keypath: ${keypath_})`);
-                if (emiterr)
+                if (emitErr)
                     this.emitError(err);
                 return undefined;
             }
             let r = {};
             [...Array((objpath.filenum ?? 0) + 1)].map((a, i) => {
                 let file = this._files[objpath.path_main.replace(_mainreg, `${i}.json`)]();
-                let objects = this.getKeyFromObjectSync(file, keypath_, emiterr);
+                let objects = this.getKeyFromObjectSync(file, objpath.leftkeys, emitErr);
                 r = { ...r, ...objects };
             });
             return r;
@@ -420,11 +468,8 @@ class jsonsplitter {
         let objpath = this.getFileByKeys(keypath_);
         let mainpath = objpath.path_main;
         let filepath = objpath.path;
-        if (!objpath.object) {
-            let err = Error(`file is undefined - could not get key from mainobject keys (keypath: ${keypath})`);
-            this.emitError(err);
-            return undefined;
-        }
+        if (!objpath.object)
+            return this.addKeySync(keypath_, value, nosilent);
         let newfile;
         if (this.getKeyFromObjectSync(objpath.object_main, ["keys", keypath_[1]]) ===
             undefined) {
@@ -445,18 +490,14 @@ class jsonsplitter {
             return true;
         return newfile;
     };
-    editKeyAddSync = (keypath, value, nosilent, emiterr) => {
+    editKeyAddSync = (keypath, value, nosilent) => {
         this.addAction(`editKeyAddSync`);
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
         let objpath = this.getFileByKeys(keypath_);
         let mainpath = objpath.path_main;
         let filepath = objpath.path;
-        if (!objpath.object) {
-            let err = Error(`file is undefined - could not get key from mainobject keys (keypath: ${keypath})`);
-            if (emiterr)
-                this.emitError(err);
-            return undefined;
-        }
+        if (!objpath.object)
+            return this.editKeySync(keypath_, value, nosilent);
         let newfile;
         if (this.getKeyFromObjectSync(objpath.object_main, ["keys", keypath_[1]]) ===
             undefined) {
@@ -709,6 +750,8 @@ class jsonsplitter {
             let objpath = this.getFileByKeys(keypath_);
             if (keypath_.length > 1) {
                 if (!objpath.keyfound) {
+                    if (objpath.keynamesmatched)
+                        return resolve(objpath.object);
                     let err = Error(`objpath.keyfound is false (keypath: ${keypath_}, noreject: ${noreject})`);
                     this.emitError(err);
                     if (noreject)
@@ -736,7 +779,7 @@ class jsonsplitter {
                 let r = {};
                 Promise.all([...Array((objpath.filenum ?? 0) + 1)].map(async (a, i) => {
                     let file = this._files[objpath.path_main.replace(_mainreg, `${i}.json`)]();
-                    let objects = await this.getKeyFromObject(file, keypath_);
+                    let objects = await this.getKeyFromObject(file, objpath.leftkeys);
                     r = { ...r, ...objects };
                 })).finally(() => {
                     return resolve(r);

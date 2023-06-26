@@ -10,6 +10,8 @@ export type getFileByKeysReturn = {
   keyfound: boolean;
   filenum: number | undefined;
   keys: string | string[];
+  leftkeys: string[];
+  keynamesmatched: boolean
 };
 
 export type mainFileEntry = Record<string, number>;
