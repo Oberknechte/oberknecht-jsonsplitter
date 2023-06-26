@@ -368,7 +368,7 @@ export class jsonsplitter {
 
         let filenum_ = this.getKeyFromObjectSync(r.object_main(), [
           "keys",
-          ...keypath_.slice(i),
+          keypath_[this._options.child_folders_keys],
         ]);
         let keynamesmatch =
           r.object_main()?.keynames.join("\u0001") ===
@@ -499,6 +499,7 @@ export class jsonsplitter {
     this.addAction(`getKeySync`);
     let keypath_ = convertToArray(keypath);
     let objpath = this.getFileByKeys(keypath_);
+    console.log(objpath);
 
     if (keypath_.length > 1) {
       if (!objpath.keyfound) {

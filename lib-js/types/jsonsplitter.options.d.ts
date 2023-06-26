@@ -11,7 +11,7 @@ export type jsonsplitteroptions = {
         noMainfileClear?: boolean | false;
         autoClearInterval?: number;
     };
-    silent: {
+    silent?: {
         _all?: boolean;
         addKey?: boolean;
         editKey?: boolean;
