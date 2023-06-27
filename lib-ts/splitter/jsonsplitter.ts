@@ -113,6 +113,10 @@ export class jsonsplitter {
     return this.oberknechtEmitter.on("error", callback);
   };
 
+  emit = (eventname: string | string[], args?: any) => {
+    return this.oberknechtEmitter.emit(eventname, args);
+  };
+
   emitError = (e: Error) => {
     return this.oberknechtEmitter.emitError("error", e);
   };

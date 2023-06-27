@@ -92,6 +92,9 @@ class jsonsplitter {
     onError = (callback) => {
         return this.oberknechtEmitter.on("error", callback);
     };
+    emit = (eventname, args) => {
+        return this.oberknechtEmitter.emit(eventname, args);
+    };
     emitError = (e) => {
         return this.oberknechtEmitter.emitError("error", e);
     };
