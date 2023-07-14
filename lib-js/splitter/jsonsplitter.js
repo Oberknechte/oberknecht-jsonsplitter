@@ -432,7 +432,7 @@ class jsonsplitter {
         let mainpath = objpath.path_main;
         let filepath = objpath.path;
         let file = objpath.object;
-        if (objpath.object_main.filekeynum ==
+        if (objpath.object_main?.filekeynum ===
             objpath.object_main.keynames.length + 1) {
             if (objpath.object_main.filekeynum >= this._options.max_keys_in_file) {
                 objpath.object_main.filenum++;
