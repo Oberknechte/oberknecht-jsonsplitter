@@ -548,11 +548,12 @@ export class jsonsplitter {
     let keypath_ = convertToArray(keypath);
     let objpath = this.getFileByKeys(keypath_);
 
-    if (!objpath.object_main?.num)
+    if (!objpath.object_main?.num) {
       this.createSync(this.addKeysToObjectSync({}, keypath_, value));
-
-    getMainPaths(this.symbol);
-    getMainFiles(this.symbol);
+      getMainPaths(this.symbol);
+      getMainFiles(this.symbol);
+      return;
+    }
 
     objpath = this.getFileByKeys(keypath_);
 
@@ -563,7 +564,7 @@ export class jsonsplitter {
 
     if (
       objpath.object_main?.filekeynum ===
-      objpath.object_main.keynames.length + 1
+      (objpath.object_main?.keynames?.length ?? 0) + 1
     ) {
       if (objpath.object_main.filekeynum >= this._options.max_keys_in_file) {
         objpath.object_main.filenum++;

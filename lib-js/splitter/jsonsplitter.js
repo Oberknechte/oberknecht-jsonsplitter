@@ -424,16 +424,18 @@ class jsonsplitter {
         this.addAction(`addKeySync`);
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
         let objpath = this.getFileByKeys(keypath_);
-        if (!objpath.object_main?.num)
+        if (!objpath.object_main?.num) {
             this.createSync(this.addKeysToObjectSync({}, keypath_, value));
-        (0, getMainPaths_1.getMainPaths)(this.symbol);
-        (0, getMainFiles_1.getMainFiles)(this.symbol);
+            (0, getMainPaths_1.getMainPaths)(this.symbol);
+            (0, getMainFiles_1.getMainFiles)(this.symbol);
+            return;
+        }
         objpath = this.getFileByKeys(keypath_);
         let mainpath = objpath.path_main;
         let filepath = objpath.path;
         let file = objpath.object;
         if (objpath.object_main?.filekeynum ===
-            objpath.object_main.keynames.length + 1) {
+            (objpath.object_main?.keynames?.length ?? 0) + 1) {
             if (objpath.object_main.filekeynum >= this._options.max_keys_in_file) {
                 objpath.object_main.filenum++;
                 objpath.object_main.filekeynum = 0;
