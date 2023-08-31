@@ -449,12 +449,12 @@ class jsonsplitter {
         }
         if (this.getKeyFromObjectSync(objpath.object_main, [
             "keys",
-            objpath.keys[1],
+            objpath.keys[objpath.object_main.keynames.length],
         ]) === undefined) {
             objpath.object_main.num++;
             objpath.object_main.filekeynum++;
         }
-        let newmainfile = this.addKeysToObjectSync(objpath.object_main, ["keys", objpath.keys[1]], objpath.object_main.filenum);
+        let newmainfile = this.addKeysToObjectSync(objpath.object_main, ["keys", objpath.keys[objpath.object_main.keynames.length]], objpath.object_main.filenum);
         let newfile = (__1.i.splitterData[this.symbol].actualFiles[filepath] = this.addKeysToObjectSync(file, keypath_, value));
         if (!newmainfile.hasChanges)
             newmainfile.hasChanges = [];

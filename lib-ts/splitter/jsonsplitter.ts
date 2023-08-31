@@ -590,7 +590,7 @@ export class jsonsplitter {
     if (
       this.getKeyFromObjectSync(objpath.object_main, [
         "keys",
-        objpath.keys[1],
+        objpath.keys[objpath.object_main.keynames.length],
       ]) === undefined
     ) {
       objpath.object_main.num++;
@@ -599,7 +599,7 @@ export class jsonsplitter {
 
     let newmainfile = this.addKeysToObjectSync(
       objpath.object_main,
-      ["keys", objpath.keys[1]],
+      ["keys", objpath.keys[objpath.object_main.keynames.length]],
       objpath.object_main.filenum
     );
     let newfile = (i.splitterData[this.symbol].actualFiles[
