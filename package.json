@@ -1,6 +1,6 @@
 {
   "name": "oberknecht-jsonsplitter",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "main": "export",
   "scripts": {
@@ -20,7 +20,7 @@
   "dependencies": {
     "fs": "^0.0.1-security",
     "oberknecht-emitters": "^1.0.2",
-    "oberknecht-utils": "^1.1.9",
+    "oberknecht-utils": "^1.6.9",
     "regex-escape": "^3.4.10"
   },
   "devDependencies": {

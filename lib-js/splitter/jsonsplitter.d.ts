@@ -43,16 +43,5 @@ export declare class jsonsplitter {
     addAppendKeysToObjectSync: (object: Record<string, any>, keys: string | string[], value: any) => Record<string, any>;
     getKeyFromObjectSync: (object: Record<string, any>, keys: string | string[], emiterr?: boolean) => any;
     deleteKeyFromObjectSync: (object: Record<string, any>, keys: string | string[], emiterr?: boolean) => Record<string, any>;
-    addKeysToObject: (object: Record<string, any>, keys: string | string[], value: any) => Promise<Record<string, any>>;
-    addAppendKeysToObject: (object: Record<string, any>, keys: string | string[], value: any) => Promise<Record<string, any>>;
-    getKeyFromObject: (object: Record<string, any>, keys: string | string[], noreject?: boolean) => Promise<any>;
-    deleteKeyFromObject: (object: Record<string, any>, keys: string | string[], noreject?: boolean) => Promise<Record<string, any>>;
-    getMainPath: (keypath: string | string[]) => string;
-    getMainKey: (keypath: string | string[], noreject?: boolean) => Promise<any>;
-    getKey: (keypath: string | string, noreject?: boolean) => Promise<any>;
-    addKey: (keypath: string | string[], value: any, noreject?: boolean) => Promise<void | fileType>;
-    editKey: (keypath: string | string[], value: any, noreject?: boolean) => Promise<void | fileType>;
-    /** Adds value to the key given (new value = <old value> + <value>) */
-    editKeyAdd: (keypath: string | string[], value: any, noreject?: boolean) => Promise<void | fileType>;
-    deleteKey: (keypath: string | string[], noreject?: boolean) => Promise<void | fileType>;
+    recreateAllSync: () => void;
 }

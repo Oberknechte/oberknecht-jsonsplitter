@@ -1,5 +1,11 @@
 import { oberknechtEmitter } from "oberknecht-emitters";
-import { chunkArray, convertToArray, extendedTypeof } from "oberknecht-utils";
+import {
+  chunkArray,
+  concatJSON,
+  convertToArray,
+  extendedTypeof,
+  regexEscape,
+} from "oberknecht-utils";
 import { _mainpath } from "../functions/_mainpath";
 import { _cdir } from "../functions/_cdir";
 import { _wf } from "../functions/_wf";
@@ -417,7 +423,7 @@ export class jsonsplitter {
       dirpaths: r.dirpaths,
       keyfound: r.keyfound,
       filenum: r.filenum,
-      leftkeys: keypath_.slice(lastI),
+      leftkeys: keypath_.slice(0, lastI+1),
       keynamesmatched: keynamesmatched,
     };
   };
@@ -481,6 +487,9 @@ export class jsonsplitter {
 
     fromArr(objdir);
 
+    getMainFiles(this.symbol);
+    getFiles(this.symbol);
+
     return objdir;
   };
 
@@ -504,7 +513,7 @@ export class jsonsplitter {
     let keypath_ = convertToArray(keypath);
     let objpath = this.getFileByKeys(keypath_);
 
-    if (keypath_.length > 1) {
+    if (keypath_.length > (objpath.object_main?.keynames?.length ?? 0)) {
       if (!objpath.keyfound) {
         let err = Error(`objpath.keyfound is false (keypath: ${keypath_})`);
         if (emitErr) this.emitError(err);
@@ -523,16 +532,15 @@ export class jsonsplitter {
       }
 
       let r = {};
-      [...Array((objpath.filenum ?? 0) + 1)].map((a, i) => {
-        let file = this._files[
-          objpath.path_main.replace(_mainreg, `${i}.json`)
-        ]();
+      objpath.dirpaths.forEach((a, i) => {
+        let file = this._files[a]();
         let objects = this.getKeyFromObjectSync(
           file,
           objpath.leftkeys,
           emitErr
         );
-        r = { ...r, ...objects };
+
+        if (objects) r = concatJSON([r, objects]);
       });
 
       return r;
@@ -562,10 +570,7 @@ export class jsonsplitter {
 
     let file = objpath.object;
 
-    if (
-      objpath.object_main?.filekeynum ===
-      (objpath.object_main?.keynames?.length ?? 0) + 1
-    ) {
+    if (keypath_.length === (objpath.object_main?.keynames?.length ?? 0) + 1) {
       if (objpath.object_main.filekeynum >= this._options.max_keys_in_file) {
         objpath.object_main.filenum++;
         objpath.object_main.filekeynum = 0;
@@ -581,7 +586,11 @@ export class jsonsplitter {
         _wf(
           this.symbol,
           filepath,
-          this.createObjectFromKeys(objpath.object_main.keynames, {})
+          this.addKeysToObjectSync(
+            this.createObjectFromKeys(objpath.object_main.keynames, {}),
+            keypath_,
+            value
+          )
         );
         file = this._files[filepath];
       }
@@ -602,9 +611,8 @@ export class jsonsplitter {
       ["keys", objpath.keys[objpath.object_main.keynames.length]],
       objpath.object_main.filenum
     );
-    let newfile = (i.splitterData[this.symbol].actualFiles[
-      filepath
-    ] = this.addKeysToObjectSync(file, keypath_, value));
+    let newfile = this.addKeysToObjectSync(file, keypath_, value);
+    i.splitterData[this.symbol].actualFiles[filepath] = newfile;
 
     if (!newmainfile.hasChanges) newmainfile.hasChanges = [];
     if (!newmainfile.hasChanges.includes(filepath))
@@ -875,531 +883,20 @@ export class jsonsplitter {
     return object;
   };
 
-  // ↓ Asynchronus functions ↓
+  recreateAllSync = () => {
+    Object.keys(this._mainfiles).forEach((a) => {
+      const mainKeynames = this._mainfiles[a]().keynames;
+      const obj = this.addAppendKeysToObjectSync({}, mainKeynames, this.getKeySync(mainKeynames));
 
-  addKeysToObject = async (
-    object: Record<string, any>,
-    keys: string | string[],
-    value: any
-  ) => {
-    return new Promise<Record<string, any>>((resolve) => {
-      let keys_ = convertToArray(keys);
-
-      let parentObj = object;
-      for (let i = 0; i < keys_.length - 1; i++) {
-        let key = keys_[i];
-        if (!(key in parentObj)) parentObj[key] = {};
-
-        parentObj = parentObj[key];
-      }
-
-      parentObj[keys_[keys_.length - 1]] = value;
-      return resolve(object);
-    });
-  };
-
-  addAppendKeysToObject = async (
-    object: Record<string, any>,
-    keys: string | string[],
-    value: any
-  ) => {
-    return new Promise<Record<string, any>>(async (resolve, reject) => {
-      let keypath_ = convertToArray(keys);
-      let objpath = this.getFileByKeys(keypath_);
-
-      this.addAppendKeysToObjectSync(object, keypath_, value);
-
-      return resolve(object);
-    });
-  };
-
-  getKeyFromObject = async (
-    object: Record<string, any>,
-    keys: string | string[],
-    noreject?: boolean
-  ) => {
-    return new Promise<any>((resolve, reject) => {
-      let keys_ = convertToArray(keys);
-      let value = object;
-      for (let i = 0; i < keys_.length; i++) {
-        if (value.hasOwnProperty(keys_[i])) {
-          value = value[keys_[i]];
-        } else {
-          let err = Error(`key ${keys_[i]} not in value`);
-          this.emitError(err);
-          if (noreject) return resolve(undefined);
-          return reject(err);
-        }
-      }
-
-      return resolve(value);
-    });
-  };
-
-  deleteKeyFromObject = async (
-    object: Record<string, any>,
-    keys: string | string[],
-    noreject?: boolean
-  ) => {
-    return new Promise<Record<string, any>>((resolve, reject) => {
-      let keys_ = convertToArray(keys);
-      let parentObj = object;
-      for (let i = 0; i < keys_.length - 1; i++) {
-        if (!(keys_[i] in parentObj)) {
-          let err = Error(`key ${keys_[i]} not in object`);
-          this.emitError(err);
-          if (noreject) return resolve(undefined);
-          return reject({ error: err });
-        } else {
-          parentObj = parentObj[keys_[i]];
-        }
-      }
-      let delkey = keys_[keys_.length - 1];
-      delete parentObj[delkey];
-      return resolve(object);
-    });
-  };
-
-  getMainPath = (keypath: string | string[]): string => {
-    let keypath_ = convertToArray(keypath);
-    return _mainpath(this.symbol, [
-      ...keypath_.slice(
-        0,
-        keypath_.length > this._options.max_keys_in_file
-          ? this._options.max_keys_in_file
-          : keypath_.length - 1
-      ),
-      "_main.json",
-    ]);
-  };
-
-  getMainKey = async (keypath: string | string[], noreject?: boolean) => {
-    this.addAction(`getMainKey`);
-    return new Promise<any>(async (resolve, reject) => {
-      let objpath = this.getFileByKeys(keypath);
-
-      if (!objpath.object_main) {
-        let err = Error(
-          `objpath.object_main is undefined (keypath: ${keypath}, noreject: ${noreject})`
-        );
-        this.emitError(err);
-        if (noreject) return resolve(undefined);
-        return reject(err);
-      }
-
-      this.getKeyFromObject(objpath.object_main, keypath.slice(1))
-        .then((mainkey) => {
-          return resolve(mainkey);
-        })
-        .catch((e) => {
-          let err = Error(
-            `could not get key ${
-              keypath[keypath.length - 1]
-            } from mainfile keys (keypath: ${keypath}, noreject: ${noreject})`,
-            { cause: e }
-          );
-          this.emitError(err);
-          if (noreject) return resolve(undefined);
-          return reject(err);
-        });
-    });
-  };
-
-  getKey = async (keypath: string | string, noreject?: boolean) => {
-    this.addAction(`getKey`);
-    return new Promise<any>(async (resolve, reject) => {
-      let keypath_ = convertToArray(keypath);
-      let objpath = this.getFileByKeys(keypath_);
-
-      if (keypath_.length > 1) {
-        if (!objpath.keyfound) {
-          if (objpath.keynamesmatched) return resolve(objpath.object);
-          let err = Error(
-            `objpath.keyfound is false (keypath: ${keypath_}, noreject: ${noreject})`
-          );
-          this.emitError(err);
-          if (noreject) return resolve(undefined);
-          return reject(err);
-        }
-
-        this.getKeyFromObject(objpath.object, keypath_, noreject)
-          .then(resolve)
-          .catch((e) => {
-            let err = Error(
-              `could not get key (path = keypath) from file (keypath: ${keypath}, noreject: ${noreject})`,
-              { cause: e }
-            );
-            this.emitError(err);
-            if (noreject) return resolve(undefined);
-            return reject(err);
-          });
-      } else {
-        if (!objpath.object_main) {
-          let err = Error(
-            `objpath.object_main is undefined (keypath: ${keypath_}, noreject: ${noreject})`
-          );
-          this.emitError(err);
-          if (noreject) return resolve(undefined);
-          return reject(err);
-        }
-
-        let r = {};
-        Promise.all(
-          [...Array((objpath.filenum ?? 0) + 1)].map(async (a, i) => {
-            let file = this._files[
-              objpath.path_main.replace(_mainreg, `${i}.json`)
-            ]();
-            let objects = await this.getKeyFromObject(file, objpath.leftkeys);
-            r = { ...r, ...objects };
-          })
-        ).finally(() => {
-          return resolve(r);
-        });
-      }
-    });
-  };
-
-  addKey = async (
-    keypath: string | string[],
-    value: any,
-    noreject?: boolean
-  ) => {
-    this.addAction(`addKey`);
-    return new Promise<void | fileType>(async (resolve, reject) => {
-      let keypath_ = convertToArray(keypath);
-      let objpath = this.getFileByKeys(keypath_);
-
-      if (!objpath.object_main?.num)
-        await this.create(await this.addKeysToObject({}, keypath_, value));
-
-      getMainPaths(this.symbol);
-      getMainFiles(this.symbol);
-
-      objpath = this.getFileByKeys(keypath_);
-
-      let mainpath = objpath.path_main;
-      let filepath = objpath.path;
-
-      let file = objpath.object;
-
-      if (
-        objpath.object_main.filekeynum ==
-        objpath.object_main.keynames.length + 1
-      ) {
-        if (objpath.object_main.filekeynum >= this._options.max_keys_in_file) {
-          objpath.object_main.filenum++;
-          objpath.object_main.filekeynum = 0;
-
-          filepath = objpath.path_main.replace(
-            _mainreg,
-            `${objpath.object_main.filenum}.json`
-          );
-          i.splitterData[this.symbol].paths[filepath] = filepath
-            .replace(_mainpath(this.symbol), "")
-            .replace(slashreg, "");
-
-          _wf(
-            this.symbol,
-            filepath,
-            this.createObjectFromKeys(objpath.object_main.keynames, {})
-          );
-          file = this._files[filepath];
-
-          if (!objpath.object_main.hasChanges)
-            objpath.object_main.hasChanges = [];
-          if (!objpath.object_main.hasChanges.includes(filepath))
-            objpath.object_main.hasChanges.push(filepath);
-          objpath.object_main.hasChanges.push(filepath);
-
-          i.splitterData[this.symbol].actualMainFiles[mainpath] =
-            objpath.object_main;
-        }
-      }
-
-      if (
-        this.getKeyFromObjectSync(objpath.object_main, [
-          "keys",
-          objpath.keys[1],
-        ]) === undefined
-      ) {
-        objpath.object_main.num++;
-        objpath.object_main.filekeynum++;
-      }
-
-      this.addKeysToObject(
-        objpath.object_main,
-        ["keys", objpath.keys[1]],
-        objpath.object_main.filenum
-      )
-        .then((newmainfile) => {
-          this.addKeysToObject(file, keypath_, value)
-            .then(async (newfile) => {
-              i.splitterData[this.symbol].actualFiles[filepath] = newfile;
-
-              if (!newmainfile.hasChanges) newmainfile.hasChanges = [];
-              if (!newmainfile.hasChanges.includes(filepath))
-                newmainfile.hasChanges.push(filepath);
-              i.splitterData[this.symbol].actualMainFiles[
-                mainpath
-              ] = newmainfile;
-              newmainfile.keynum++;
-              newmainfile.filekeynum++;
-
-              if (this._options.silent?._all || this._options.silent?.addKey)
-                return resolve();
-              return resolve(newfile);
-            })
-            .catch((e) => {
-              let err = Error(
-                `could not add key (path = keypath) to file (keypath: ${keypath}, noreject: ${noreject})`,
-                { cause: e }
-              );
-              this.emitError(err);
-              if (noreject) return resolve(undefined);
-              return reject(err);
-            });
-        })
-        .catch((e) => {
-          let err = Error(
-            `could not add key ${objpath.keys[1]} to mainfile keys (keypath: ${keypath}, noreject: ${noreject})`,
-            { cause: e }
-          );
-          this.emitError(err);
-          if (noreject) return resolve(undefined);
-          return reject(err);
-        });
-    });
-  };
-
-  editKey = async (
-    keypath: string | string[],
-    value: any,
-    noreject?: boolean
-  ) => {
-    this.addAction(`editKey`);
-    return new Promise<void | fileType>(async (resolve, reject) => {
-      let keypath_ = convertToArray(keypath);
-      let objpath = this.getFileByKeys(keypath_);
-
-      let mainpath = objpath.path_main;
-      let filepath = objpath.path;
-
-      if (!objpath.object) {
-        let err = Error(
-          `file is undefined - could not get key from mainobject keys (keypath: ${keypath}, noreject: ${noreject})`
-        );
-        this.emitError(err);
-        if (noreject) return resolve(undefined);
-        return reject(err);
-      }
-
-      if (
-        this.getKeyFromObjectSync(objpath.object_main, [
-          "keys",
-          keypath_[1],
-        ]) === undefined
-      ) {
-        let newfile = this.addKeySync(keypath_, value);
-        if (!objpath.object_main.hasChanges)
-          objpath.object_main.hasChanges = [];
-        if (!objpath.object_main.hasChanges.includes(filepath))
-          objpath.object_main.hasChanges.push(filepath);
-        i.splitterData[this.symbol].actualMainFiles[mainpath] =
-          objpath.object_main;
-
-        if (this._options.silent?._all || this._options.silent?.editKey)
-          return resolve();
-        return resolve(newfile as fileType);
-      } else {
-        this.addKeysToObject(objpath.object, keypath_, value)
-          .then((newfile) => {
-            i.splitterData[this.symbol].actualFiles[filepath] = newfile;
-            if (!objpath.object_main.hasChanges)
-              objpath.object_main.hasChanges = [];
-            if (!objpath.object_main.hasChanges.includes(filepath))
-              objpath.object_main.hasChanges.push(filepath);
-            i.splitterData[this.symbol].actualMainFiles[mainpath] =
-              objpath.object_main;
-
-            if (this._options.silent?._all || this._options.silent?.editKey)
-              return resolve();
-            return resolve(newfile);
-          })
-          .catch((e) => {
-            let err = Error(
-              `could not add key (path: ${keypath_.slice(
-                0,
-                keypath_.length - 2
-              )}) to object (keypath: ${keypath}, noreject: ${noreject})`,
-              { cause: e }
-            );
-            this.emitError(err);
-            if (noreject) return resolve(undefined);
-            return reject(err);
-          });
-      }
-    });
-  };
-
-  /** Adds value to the key given (new value = <old value> + <value>) */
-  editKeyAdd = async (
-    keypath: string | string[],
-    value: any,
-    noreject?: boolean
-  ) => {
-    this.addAction(`editKeyAdd`);
-    return new Promise<void | fileType>(async (resolve, reject) => {
-      let keypath_ = convertToArray(keypath);
-      let objpath = this.getFileByKeys(keypath_);
-
-      let mainpath = objpath.path_main;
-      let filepath = objpath.path;
-
-      if (!objpath.object) {
-        let err = Error(
-          `file is undefined - could not get key from mainobject keys (keypath: ${keypath}, noreject: ${noreject})`
-        );
-        this.emitError(err);
-        if (noreject) return resolve(undefined);
-        return reject(err);
-      }
-
-      if (
-        this.getKeyFromObjectSync(objpath.object_main, [
-          "keys",
-          keypath_[1],
-        ]) === undefined
-      ) {
-        let newfile = this.addAppendKeysToObjectSync(
-          objpath.object,
-          keypath_,
-          value
-        );
-        i.splitterData[this.symbol].actualFiles[filepath] = newfile;
-        if (!objpath.object_main.hasChanges)
-          objpath.object_main.hasChanges = [];
-        if (!objpath.object_main.hasChanges.includes(filepath))
-          objpath.object_main.hasChanges.push(filepath);
-        i.splitterData[this.symbol].actualMainFiles[mainpath] =
-          objpath.object_main;
-
-        if (this._options.silent?._all || this._options.silent?.editKey)
-          return resolve();
-        return resolve(newfile as fileType);
-      } else {
-        this.addAppendKeysToObject(objpath.object, keypath_, value)
-          .then((newfile) => {
-            i.splitterData[this.symbol].actualFiles[filepath] = newfile;
-            if (!objpath.object_main.hasChanges)
-              objpath.object_main.hasChanges = [];
-            if (!objpath.object_main.hasChanges.includes(filepath))
-              objpath.object_main.hasChanges.push(filepath);
-            i.splitterData[this.symbol].actualMainFiles[mainpath] =
-              objpath.object_main;
-
-            if (this._options.silent?._all || this._options.silent?.editKeyAdd)
-              return resolve();
-            return resolve(newfile);
-          })
-          .catch((e) => {
-            let err = Error(
-              `could not add key (path: ${keypath_.slice(
-                0,
-                keypath_.length - 2
-              )}) to object (keypath: ${keypath}, noreject: ${noreject})`,
-              { cause: e }
-            );
-            this.emitError(err);
-            if (noreject) return resolve(undefined);
-            return reject(err);
-          });
-      }
-    });
-  };
-
-  deleteKey = async (keypath: string | string[], noreject?: boolean) => {
-    this.addAction(`deleteKey`);
-    return new Promise<void | fileType>(async (resolve, reject) => {
-      let keypath_ = convertToArray(keypath);
-      let objpath = this.getFileByKeys(keypath_);
-
-      if (!objpath.object_main) {
-        let err = Error(
-          `objpath.object_main is undefined (keypath: ${keypath_}, noreject: ${noreject})`
-        );
-        this.emitError(err);
-        if (noreject) return resolve(undefined);
-        return reject(err);
-      }
-
-      let mainpath = objpath.path_main;
-
-      let filepath = objpath.path_main.replace(
-        _mainreg,
-        `${objpath.filenum}.json`
+      const rmFilePaths = Object.keys(this._files).filter((b) =>
+        new RegExp(
+          `^${regexEscape(a.split("/").slice(0, -1).join("/"))}\/\\d+\.json`
+        ).test(b)
       );
-      let file = objpath.object;
 
-      if (
-        keypath_.length >
-        (objpath.object_main?.keynames?.length ??
-          this._options?.max_keys_in_file)
-      ) {
-        this.deleteKeyFromObject(file, keypath_)
-          .then(async (newfile) => {
-            file = i.splitterData[this.symbol].actualFiles[filepath] = newfile;
+      [a, ...rmFilePaths].forEach((b) => fs.rmSync(b));
 
-            let mainfile = objpath.object_main;
-            if (!mainfile.hasChanges) mainfile.hasChanges = [];
-            if (!mainfile.hasChanges.includes(filepath))
-              mainfile.hasChanges.push(filepath);
-            if (keypath_.length == objpath.object_main.keynames.length + 1) {
-              await this.deleteKeyFromObject(mainfile, [
-                "keys",
-                keypath_[objpath.object_main.keynames.length],
-              ]);
-              mainfile.num--;
-              mainfile.filekeynum--;
-            }
-            i.splitterData[this.symbol].actualMainFiles[mainpath] = mainfile;
-
-            if (this._options.silent?._all || this._options.silent?.deleteKey)
-              return resolve();
-            return resolve(file);
-          })
-          .catch((e) => {
-            let err = Error(
-              `could not delete key from file (keypath: ${keypath}, noreject: ${noreject})`,
-              { cause: e }
-            );
-            this.emitError(err);
-            if (noreject) return resolve(undefined);
-            return reject(err);
-          });
-      } else {
-        if (!objpath.dirpath) {
-          let err = Error(
-            `could not get maindirectory of specified keypath (keypath: ${keypath}, noreject: ${noreject})`
-          );
-          this.emitError(err);
-          if (noreject) return resolve(undefined);
-          return reject(err);
-        }
-
-        try {
-          delete i.splitterData[this.symbol].actualMainFiles[objpath.path_main];
-        } catch (e) {}
-
-        Object.keys(objpath.dirpaths).forEach((a) => {
-          try {
-            delete i.splitterData[this.symbol].actualFiles[a];
-          } catch (e) {}
-        });
-
-        fs.rmSync(objpath.dirpath, { recursive: true });
-
-        return resolve();
-      }
+      this.createSync(obj);
     });
   };
 }

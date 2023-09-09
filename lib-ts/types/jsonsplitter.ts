@@ -1,7 +1,7 @@
 export type getFileByKeysReturn = {
   path: string | undefined;
   dirpath: string | undefined;
-  dirpaths: string | undefined;
+  dirpaths: string[] | undefined;
   path_main: string | undefined;
   object: Record<string, any> | undefined;
   object_: Record<string, any> | undefined;
