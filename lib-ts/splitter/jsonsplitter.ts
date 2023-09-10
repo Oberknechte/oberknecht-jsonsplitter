@@ -423,7 +423,7 @@ export class jsonsplitter {
       dirpaths: r.dirpaths,
       keyfound: r.keyfound,
       filenum: r.filenum,
-      leftkeys: keypath_.slice(0, lastI+1),
+      leftkeys: keypath_.slice(0, lastI + 1),
       keynamesmatched: keynamesmatched,
     };
   };
@@ -886,7 +886,11 @@ export class jsonsplitter {
   recreateAllSync = () => {
     Object.keys(this._mainfiles).forEach((a) => {
       const mainKeynames = this._mainfiles[a]().keynames;
-      const obj = this.addAppendKeysToObjectSync({}, mainKeynames, this.getKeySync(mainKeynames));
+      const obj = this.addAppendKeysToObjectSync(
+        {},
+        mainKeynames,
+        this.getKeySync(mainKeynames)
+      );
 
       const rmFilePaths = Object.keys(this._files).filter((b) =>
         new RegExp(
@@ -898,5 +902,9 @@ export class jsonsplitter {
 
       this.createSync(obj);
     });
+
+    try {
+      this.save();
+    } catch (e) {}
   };
 }

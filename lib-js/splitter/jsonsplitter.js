@@ -663,6 +663,10 @@ class jsonsplitter {
             [a, ...rmFilePaths].forEach((b) => fs_1.default.rmSync(b));
             this.createSync(obj);
         });
+        try {
+            this.save();
+        }
+        catch (e) { }
     };
 }
 exports.jsonsplitter = jsonsplitter;
