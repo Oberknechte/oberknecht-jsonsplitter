@@ -592,7 +592,7 @@ export class jsonsplitter {
             value
           )
         );
-        file = this._files[filepath];
+        file = this._files[filepath]();
       }
     }
 

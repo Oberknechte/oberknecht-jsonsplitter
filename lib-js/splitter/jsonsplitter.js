@@ -446,7 +446,7 @@ class jsonsplitter {
                     .replace((0, _mainpath_1._mainpath)(this.symbol), "")
                     .replace(slashreg, "");
                 (0, _wf_1._wf)(this.symbol, filepath, this.addKeysToObjectSync(this.createObjectFromKeys(objpath.object_main.keynames, {}), keypath_, value));
-                file = this._files[filepath];
+                file = this._files[filepath]();
             }
         }
         if (this.getKeyFromObjectSync(objpath.object_main, [
