@@ -25,3 +25,4 @@ export type mainFileType = {
 export type fileEntryType = Record<string, any>;
 export type fileType = Record<string, any | fileEntryType>;
 export type deleteKeySyncrettype = boolean | undefined;
+export declare const maxJSONSize: 4194304;

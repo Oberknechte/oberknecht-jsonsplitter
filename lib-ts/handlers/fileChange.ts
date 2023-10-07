@@ -1,3 +1,4 @@
+import { arrayModifiers } from "oberknecht-utils";
 import { i } from "..";
 import { _log } from "../functions/_log";
 import { _wf } from "../functions/_wf";
@@ -14,20 +15,24 @@ export async function fileChange(sym: string, auto?: boolean) {
         0,
         `[JSONSPLITTER] [FILECHANGE] ${auto ? "[Automatic] " : ""} Executed`
       );
+
     if (!i.splitterData[sym]?.actualFiles) return;
     Object.keys(i.splitterData[sym].actualMainFiles).forEach((mainfilepath) => {
       let mainFile = i.splitterData[sym].actualMainFiles[mainfilepath];
-      if ((mainFile.hasChanges ?? []).length == 0) return;
+      if ((mainFile.hasChanges ?? []).length === 0) return;
 
-      mainFile.hasChanges.forEach((filepath) => {
-        changed_files++;
-        mainFile.hasChanges.splice(mainFile.hasChanges.indexOf(filepath), 1);
+      arrayModifiers
+        .removeDuplicates(mainFile.hasChanges)
+        .forEach((filepath: string) => {
+          if (filepath.length === 0 || filepath.endsWith("_main.json")) return;
+          changed_files++;
 
-        let file = i.splitterData[sym].actualFiles[filepath];
-        if (file) _wf(sym, filepath, file);
-        else delete i.splitterData[sym].actualFiles[filepath];
-      });
+          let file = i.splitterData[sym].actualFiles[filepath];
+          if (file) _wf(sym, filepath, file);
+          else delete i.splitterData[sym].actualFiles[filepath];
+        });
 
+      mainFile.hasChanges = [];
       if (mainFile.lastUsed) delete mainFile.lastUsed;
       _wf(sym, mainfilepath, mainFile);
     });

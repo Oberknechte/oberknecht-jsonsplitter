@@ -1,7 +1,9 @@
 import { i } from "..";
 import { _mainpath } from "./_mainpath";
 import { _wf } from "./_wf";
+import { clearCacheBySize } from "./clearCacheBySize";
 import { correctpath } from "./correctpath";
+import { joinCacheKeyPath } from "./joinCacheKeyPath";
 import { uncorrectpath } from "./uncorrectPath";
 import fs from "fs";
 
@@ -29,10 +31,18 @@ export function _rf(sym: string, rfpath: string, parse_json?: boolean) {
               if (!i.splitterData[sym].actualFiles)
                 i.splitterData[sym].actualFiles = {};
               i.splitterData[sym].actualFiles[correctpath(rfpath)] = file_2;
+              // i.cache.set(
+              //   joinCacheKeyPath(["actualFiles", correctpath(rfpath)]),
+              //   file_2
+              // );
             } else if (rfpath.endsWith("_main.json")) {
               if (!i.splitterData[sym].actualMainFiles)
                 i.splitterData[sym].actualMainFiles = {};
               i.splitterData[sym].actualMainFiles[correctpath(rfpath)] = file_2;
+              // i.cache.set(
+              //   joinCacheKeyPath(["actualMainFiles", correctpath(rfpath)]),
+              //   file_2
+              // );
             }
 
             return file_2;

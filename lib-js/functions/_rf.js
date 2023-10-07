@@ -31,11 +31,19 @@ function _rf(sym, rfpath, parse_json) {
                             if (!__1.i.splitterData[sym].actualFiles)
                                 __1.i.splitterData[sym].actualFiles = {};
                             __1.i.splitterData[sym].actualFiles[(0, correctpath_1.correctpath)(rfpath)] = file_2;
+                            // i.cache.set(
+                            //   joinCacheKeyPath(["actualFiles", correctpath(rfpath)]),
+                            //   file_2
+                            // );
                         }
                         else if (rfpath.endsWith("_main.json")) {
                             if (!__1.i.splitterData[sym].actualMainFiles)
                                 __1.i.splitterData[sym].actualMainFiles = {};
                             __1.i.splitterData[sym].actualMainFiles[(0, correctpath_1.correctpath)(rfpath)] = file_2;
+                            // i.cache.set(
+                            //   joinCacheKeyPath(["actualMainFiles", correctpath(rfpath)]),
+                            //   file_2
+                            // );
                         }
                         return file_2;
                     }
