@@ -338,7 +338,6 @@ class jsonsplitter {
             keynamesmatched: keynamesmatched,
         };
     };
-    // ↓ Synchronus functions ↓
     createSync = (object) => {
         let this_ = this;
         let objdir = this.getDirPathsByObject(object);
@@ -424,7 +423,7 @@ class jsonsplitter {
             return r;
         }
     };
-    addKeySync = (keypath, value, nosilent) => {
+    addKeySync = (keypath, value, nosilent, newFile) => {
         this.addAction(`addKeySync`);
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
         let objpath = this.getFileByKeys(keypath_);
@@ -439,9 +438,11 @@ class jsonsplitter {
         let filepath = objpath.path;
         let file;
         file = (0, oberknecht_utils_1.recreate)(objpath.object);
-        if (keypath_.length === (objpath.object_main?.keynames?.length ?? 0) + 1) {
+        if (newFile ||
+            keypath_.length === (objpath.object_main?.keynames?.length ?? 0) + 1) {
             if (objpath.object_main.filekeynum >= this._options.max_keys_in_file ||
-                (0, checkSize_1.checkSize)((0, oberknecht_utils_1.recreate)(file), (0, oberknecht_utils_1.addKeysToObject)({}, keypath_, value))) {
+                (0, checkSize_1.checkSize)((0, oberknecht_utils_1.recreate)(file), (0, oberknecht_utils_1.addKeysToObject)({}, keypath_, value)) ||
+                newFile) {
                 objpath.object_main.filenum++;
                 objpath.object_main.filekeynum = 0;
                 filepath = objpath.path_main.replace(_mainreg, `${objpath.object_main.filenum}.json`);
@@ -491,7 +492,7 @@ class jsonsplitter {
             let noAppendNewFile = false;
             if ((0, checkSize_1.checkSize)((0, oberknecht_utils_1.recreate)(objpath.object), (0, oberknecht_utils_1.addKeysToObject)({}, keypath_, value))) {
                 this.deleteKeySync(keypath_);
-                newfile = (0, oberknecht_utils_1.recreate)(this.addKeySync(keypath_, value, true));
+                newfile = (0, oberknecht_utils_1.recreate)(this.addKeySync(keypath_, value, true, true));
                 noAppendNewFile = true;
             }
             else {
@@ -525,14 +526,25 @@ class jsonsplitter {
             newfile = this.addKeySync(keypath_, value, true);
         }
         else {
-            newfile = this.addAppendKeysToObjectSync(objpath.object, keypath_, value);
-            if (!objpath.object_main.hasChanges)
-                objpath.object_main.hasChanges = [];
-            if (!objpath.object_main.hasChanges.includes(filepath))
-                objpath.object_main.hasChanges.push(filepath);
-            __1.i.splitterData[this.symbol].actualMainFiles[mainpath] =
-                objpath.object_main;
-            __1.i.splitterData[this.symbol].actualFiles[filepath] = newfile;
+            let noAppendNewFile = false;
+            if ((0, checkSize_1.checkSize)((0, oberknecht_utils_1.recreate)(objpath.object), this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true))) {
+                let valueNew = this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true);
+                this.deleteKeySync(keypath_);
+                newfile = this.addKeySync(keypath_, valueNew, true);
+                noAppendNewFile = true;
+            }
+            else {
+                newfile = this.addAppendKeysToObjectSync(objpath.object, keypath_, value);
+            }
+            if (!noAppendNewFile) {
+                if (!objpath.object_main.hasChanges)
+                    objpath.object_main.hasChanges = [];
+                if (!objpath.object_main.hasChanges.includes(filepath))
+                    objpath.object_main.hasChanges.push(filepath);
+                __1.i.splitterData[this.symbol].actualMainFiles[mainpath] =
+                    objpath.object_main;
+                __1.i.splitterData[this.symbol].actualFiles[filepath] = newfile;
+            }
         }
         if ((this._options.silent?._all || this._options.silent?.editKeyAdd) &&
             !nosilent)
@@ -610,7 +622,7 @@ class jsonsplitter {
         parentObj[keys_[keys_.length - 1]] = value;
         return object;
     };
-    addAppendKeysToObjectSync = (object, keys, value) => {
+    addAppendKeysToObjectSync = (object, keys, value, returnValue) => {
         let keys_ = (0, oberknecht_utils_1.convertToArray)(keys);
         let oldvalue = this.getKeyFromObjectSync(object, keys_);
         let newvalue = oldvalue ?? value;
@@ -634,7 +646,7 @@ class jsonsplitter {
             }
         }
         this.addKeysToObjectSync(object, keys_, newvalue);
-        return object;
+        return returnValue ? newvalue : object;
     };
     getKeyFromObjectSync = (object, keys, emiterr) => {
         let keys_ = (0, oberknecht_utils_1.convertToArray)(keys);

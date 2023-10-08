@@ -433,9 +433,6 @@ export class jsonsplitter {
       keynamesmatched: keynamesmatched,
     };
   };
-
-  // ↓ Synchronus functions ↓
-
   createSync = (object: Record<string, any>) => {
     let this_ = this;
 
@@ -556,7 +553,8 @@ export class jsonsplitter {
   addKeySync = <nosilenttype extends boolean>(
     keypath: string | string[],
     value: any,
-    nosilent?: nosilenttype
+    nosilent?: nosilenttype,
+    newFile?: boolean
   ): nosilenttype extends true ? fileType | boolean : boolean => {
     this.addAction(`addKeySync`);
     let keypath_ = convertToArray(keypath);
@@ -577,10 +575,14 @@ export class jsonsplitter {
     let file;
     file = recreate(objpath.object);
 
-    if (keypath_.length === (objpath.object_main?.keynames?.length ?? 0) + 1) {
+    if (
+      newFile ||
+      keypath_.length === (objpath.object_main?.keynames?.length ?? 0) + 1
+    ) {
       if (
         objpath.object_main.filekeynum >= this._options.max_keys_in_file ||
-        checkSize(recreate(file), addKeysToObject({}, keypath_, value))
+        checkSize(recreate(file), addKeysToObject({}, keypath_, value)) ||
+        newFile
       ) {
         objpath.object_main.filenum++;
         objpath.object_main.filekeynum = 0;
@@ -668,7 +670,7 @@ export class jsonsplitter {
         )
       ) {
         this.deleteKeySync(keypath_);
-        newfile = recreate(this.addKeySync(keypath_, value, true));
+        newfile = recreate(this.addKeySync(keypath_, value, true, true));
 
         noAppendNewFile = true;
       } else {
@@ -717,14 +719,36 @@ export class jsonsplitter {
     ) {
       newfile = this.addKeySync(keypath_, value, true);
     } else {
-      newfile = this.addAppendKeysToObjectSync(objpath.object, keypath_, value);
-      if (!objpath.object_main.hasChanges) objpath.object_main.hasChanges = [];
-      if (!objpath.object_main.hasChanges.includes(filepath))
-        objpath.object_main.hasChanges.push(filepath);
-      i.splitterData[this.symbol].actualMainFiles[mainpath] =
-        objpath.object_main;
+      let noAppendNewFile = false;
+      if (
+        checkSize(
+          recreate(objpath.object),
+          this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true)
+        )
+      ) {
+        let valueNew = this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true)
+        this.deleteKeySync(keypath_);
+        newfile = this.addKeySync(keypath_, valueNew, true);
 
-      i.splitterData[this.symbol].actualFiles[filepath] = newfile;
+        noAppendNewFile = true;
+      } else {
+        newfile = this.addAppendKeysToObjectSync(
+          objpath.object,
+          keypath_,
+          value
+        );
+      }
+
+      if (!noAppendNewFile) {
+        if (!objpath.object_main.hasChanges)
+          objpath.object_main.hasChanges = [];
+        if (!objpath.object_main.hasChanges.includes(filepath))
+          objpath.object_main.hasChanges.push(filepath);
+        i.splitterData[this.symbol].actualMainFiles[mainpath] =
+          objpath.object_main;
+
+        i.splitterData[this.symbol].actualFiles[filepath] = newfile;
+      }
     }
 
     if (
@@ -839,7 +863,8 @@ export class jsonsplitter {
   addAppendKeysToObjectSync = (
     object: Record<string, any>,
     keys: string | string[],
-    value: any
+    value: any,
+    returnValue?: boolean
   ): Record<string, any> => {
     let keys_ = convertToArray(keys);
 
@@ -870,7 +895,7 @@ export class jsonsplitter {
 
     this.addKeysToObjectSync(object, keys_, newvalue);
 
-    return object;
+    return returnValue ? newvalue : object;
   };
 
   getKeyFromObjectSync = (

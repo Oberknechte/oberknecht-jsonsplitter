@@ -17,6 +17,7 @@ function _rf(sym, rfpath, parse_json) {
     try {
         if (fs_1.default.existsSync(rfpath_)) {
             let file = fs_1.default.readFileSync(rfpath_, "utf-8");
+            // let fileData = fs.statSync(rfpath_);
             if (rfpath.endsWith(".json") && parse_json) {
                 if (typeof file === "string" &&
                     typeof JSON.parse(file) === "object" &&
