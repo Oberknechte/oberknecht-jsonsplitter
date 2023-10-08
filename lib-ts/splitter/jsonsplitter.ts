@@ -676,9 +676,10 @@ export class jsonsplitter {
       } else {
         newfile = this.addKeysToObjectSync(objpath.object, keypath_, value);
       }
+      if (!objpath.object_main.hasChanges) objpath.object_main.hasChanges = [];
       if (
         !noAppendNewFile &&
-        !objpath.object_main.hasChanges.includes(filePath)
+        !objpath.object_main?.hasChanges?.includes(filePath)
       ) {
         objpath.object_main.hasChanges.push(filePath);
         i.splitterData[this.symbol].actualFiles[filePath] = newfile;
@@ -726,7 +727,12 @@ export class jsonsplitter {
           this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true)
         )
       ) {
-        let valueNew = this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true)
+        let valueNew = this.addAppendKeysToObjectSync(
+          objpath.object,
+          keypath_,
+          value,
+          true
+        );
         this.deleteKeySync(keypath_);
         newfile = this.addKeySync(keypath_, valueNew, true);
 
@@ -739,16 +745,17 @@ export class jsonsplitter {
         );
       }
 
-      if (!noAppendNewFile) {
-        if (!objpath.object_main.hasChanges)
-          objpath.object_main.hasChanges = [];
-        if (!objpath.object_main.hasChanges.includes(filepath))
-          objpath.object_main.hasChanges.push(filepath);
-        i.splitterData[this.symbol].actualMainFiles[mainpath] =
-          objpath.object_main;
-
+      if (!objpath.object_main.hasChanges) objpath.object_main.hasChanges = [];
+      if (
+        !noAppendNewFile &&
+        !objpath.object_main?.hasChanges?.includes(filepath)
+      ) {
+        objpath.object_main.hasChanges.push(filepath);
         i.splitterData[this.symbol].actualFiles[filepath] = newfile;
       }
+
+      i.splitterData[this.symbol].actualMainFiles[mainpath] =
+        objpath.object_main;
     }
 
     if (

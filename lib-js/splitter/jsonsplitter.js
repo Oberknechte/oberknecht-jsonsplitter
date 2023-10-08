@@ -498,8 +498,10 @@ class jsonsplitter {
             else {
                 newfile = this.addKeysToObjectSync(objpath.object, keypath_, value);
             }
+            if (!objpath.object_main.hasChanges)
+                objpath.object_main.hasChanges = [];
             if (!noAppendNewFile &&
-                !objpath.object_main.hasChanges.includes(filePath)) {
+                !objpath.object_main?.hasChanges?.includes(filePath)) {
                 objpath.object_main.hasChanges.push(filePath);
                 __1.i.splitterData[this.symbol].actualFiles[filePath] = newfile;
             }
@@ -536,15 +538,15 @@ class jsonsplitter {
             else {
                 newfile = this.addAppendKeysToObjectSync(objpath.object, keypath_, value);
             }
-            if (!noAppendNewFile) {
-                if (!objpath.object_main.hasChanges)
-                    objpath.object_main.hasChanges = [];
-                if (!objpath.object_main.hasChanges.includes(filepath))
-                    objpath.object_main.hasChanges.push(filepath);
-                __1.i.splitterData[this.symbol].actualMainFiles[mainpath] =
-                    objpath.object_main;
+            if (!objpath.object_main.hasChanges)
+                objpath.object_main.hasChanges = [];
+            if (!noAppendNewFile &&
+                !objpath.object_main?.hasChanges?.includes(filepath)) {
+                objpath.object_main.hasChanges.push(filepath);
                 __1.i.splitterData[this.symbol].actualFiles[filepath] = newfile;
             }
+            __1.i.splitterData[this.symbol].actualMainFiles[mainpath] =
+                objpath.object_main;
         }
         if ((this._options.silent?._all || this._options.silent?.editKeyAdd) &&
             !nosilent)

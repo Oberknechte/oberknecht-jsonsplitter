@@ -7,10 +7,10 @@ function checkSize(file, object) {
         return false;
     const fileBuffer = !file
         ? undefined
-        : Buffer.from(typeof file === "object" ? JSON.stringify(file) : file, "utf-8");
+        : Buffer.from(typeof file === "object" ? JSON.stringify(file) : file.toString(), "utf-8");
     const objectBuffer = !object
         ? undefined
-        : Buffer.from(typeof object === "object" ? JSON.stringify(object) : object, "utf-8");
+        : Buffer.from(typeof object === "object" ? JSON.stringify(object) : object.toString(), "utf-8");
     if (!object && fileBuffer)
         return fileBuffer.byteLength >= jsonsplitter_1.maxJSONSize;
     if (!file && objectBuffer)
