@@ -18,4 +18,5 @@ export type jsonsplitteroptions = {
         editKeyAdd?: boolean;
         deleteKey?: boolean;
     };
+    maxFileSize?: number;
 };

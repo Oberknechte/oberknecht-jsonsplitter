@@ -441,7 +441,7 @@ class jsonsplitter {
         if (newFile ||
             keypath_.length === (objpath.object_main?.keynames?.length ?? 0) + 1) {
             if (objpath.object_main.filekeynum >= this._options.max_keys_in_file ||
-                (0, checkSize_1.checkSize)((0, oberknecht_utils_1.recreate)(file), (0, oberknecht_utils_1.addKeysToObject)({}, keypath_, value)) ||
+                (0, checkSize_1.checkSize)(this.symbol, (0, oberknecht_utils_1.recreate)(file), (0, oberknecht_utils_1.addKeysToObject)({}, keypath_, value)) ||
                 newFile) {
                 objpath.object_main.filenum++;
                 objpath.object_main.filekeynum = 0;
@@ -490,7 +490,7 @@ class jsonsplitter {
         }
         else {
             let noAppendNewFile = false;
-            if ((0, checkSize_1.checkSize)((0, oberknecht_utils_1.recreate)(objpath.object), (0, oberknecht_utils_1.addKeysToObject)({}, keypath_, value))) {
+            if ((0, checkSize_1.checkSize)(this.symbol, (0, oberknecht_utils_1.recreate)(objpath.object), (0, oberknecht_utils_1.addKeysToObject)({}, keypath_, value))) {
                 this.deleteKeySync(keypath_);
                 newfile = (0, oberknecht_utils_1.recreate)(this.addKeySync(keypath_, value, true, true));
                 noAppendNewFile = true;
@@ -529,7 +529,7 @@ class jsonsplitter {
         }
         else {
             let noAppendNewFile = false;
-            if ((0, checkSize_1.checkSize)((0, oberknecht_utils_1.recreate)(objpath.object), this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true))) {
+            if ((0, checkSize_1.checkSize)(this.symbol, (0, oberknecht_utils_1.recreate)(objpath.object), this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true))) {
                 let valueNew = this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true);
                 this.deleteKeySync(keypath_);
                 newfile = this.addKeySync(keypath_, valueNew, true);

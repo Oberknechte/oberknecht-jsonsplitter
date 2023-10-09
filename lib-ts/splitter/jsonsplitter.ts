@@ -581,7 +581,7 @@ export class jsonsplitter {
     ) {
       if (
         objpath.object_main.filekeynum >= this._options.max_keys_in_file ||
-        checkSize(recreate(file), addKeysToObject({}, keypath_, value)) ||
+        checkSize(this.symbol, recreate(file), addKeysToObject({}, keypath_, value)) ||
         newFile
       ) {
         objpath.object_main.filenum++;
@@ -665,6 +665,7 @@ export class jsonsplitter {
       let noAppendNewFile = false;
       if (
         checkSize(
+          this.symbol,
           recreate(objpath.object),
           addKeysToObject({}, keypath_, value)
         )
@@ -723,6 +724,7 @@ export class jsonsplitter {
       let noAppendNewFile = false;
       if (
         checkSize(
+          this.symbol,
           recreate(objpath.object),
           this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true)
         )

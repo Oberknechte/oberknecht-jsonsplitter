@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkSize = void 0;
+const __1 = require("..");
 const jsonsplitter_1 = require("../types/jsonsplitter");
-function checkSize(file, object) {
+function checkSize(sym, file, object) {
     if (!file && !object)
         return false;
     const fileBuffer = !file
@@ -11,10 +12,13 @@ function checkSize(file, object) {
     const objectBuffer = !object
         ? undefined
         : Buffer.from(typeof object === "object" ? JSON.stringify(object) : object.toString(), "utf-8");
+    let maxSize = __1.i.splitterData[sym]._options?.maxFileSize ?? jsonsplitter_1.maxJSONSize;
+    if (maxSize > jsonsplitter_1.maxJSONSize || maxSize <= 0)
+        maxSize = jsonsplitter_1.maxJSONSize;
     if (!object && fileBuffer)
-        return fileBuffer.byteLength >= jsonsplitter_1.maxJSONSize;
+        return fileBuffer.byteLength >= maxSize;
     if (!file && objectBuffer)
-        return objectBuffer.byteLength >= jsonsplitter_1.maxJSONSize;
-    return fileBuffer.byteLength + objectBuffer.byteLength >= jsonsplitter_1.maxJSONSize;
+        return objectBuffer.byteLength >= maxSize;
+    return fileBuffer.byteLength + objectBuffer.byteLength >= maxSize;
 }
 exports.checkSize = checkSize;
