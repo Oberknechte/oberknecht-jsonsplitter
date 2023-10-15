@@ -389,7 +389,7 @@ class jsonsplitter {
             this.emitError(err);
             return undefined;
         }
-        return this.getKeyFromObjectSync(objpath.object_main, keypath.slice(1));
+        return this.getKeyFromObjectSync(objpath.object_main, keypath.slice(this._options.child_folders_keys));
     };
     getKeySync = (keypath, emitErr) => {
         this.addAction(`getKeySync`);

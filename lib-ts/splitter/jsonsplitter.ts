@@ -508,7 +508,7 @@ export class jsonsplitter {
       return undefined;
     }
 
-    return this.getKeyFromObjectSync(objpath.object_main, keypath.slice(1));
+    return this.getKeyFromObjectSync(objpath.object_main, keypath.slice(this._options.child_folders_keys));
   };
 
   getKeySync = (keypath: string | string[], emitErr?: boolean): any => {
