@@ -4,7 +4,8 @@ import { maxJSONSize } from "../types/jsonsplitter";
 export function checkSize(
   sym: string,
   file?: object | string | Buffer,
-  object?: object | string | Buffer
+  object?: object | string | Buffer,
+  size?: number
 ): boolean {
   if (!file && !object) return false;
 
@@ -21,7 +22,7 @@ export function checkSize(
         "utf-8"
       );
 
-  let maxSize = i.splitterData[sym]._options?.maxFileSize ?? maxJSONSize;
+  let maxSize = size ?? i.splitterData[sym]._options?.maxFileSize ?? maxJSONSize;
   if (maxSize > maxJSONSize || maxSize <= 0) maxSize = maxJSONSize;
 
   if (!object && fileBuffer) return fileBuffer.byteLength >= maxSize;

@@ -19,4 +19,5 @@ export type jsonsplitteroptions = {
         deleteKey?: boolean;
     };
     maxFileSize?: number;
+    maxKeysFileSize?: number | 200000;
 };

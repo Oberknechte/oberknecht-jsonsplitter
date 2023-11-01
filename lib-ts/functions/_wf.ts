@@ -7,7 +7,8 @@ import { i } from "..";
 export function _wf(
   sym: string,
   wfpath: string,
-  wffile: string | object | Buffer
+  wffile: string | object | Buffer,
+  fileType?: string
 ) {
   if (!wfpath) return new Error(`_wf: wfpath is undefined`);
   if (!wffile) return new Error(`_wf: wffile is undefined`);
@@ -15,7 +16,11 @@ export function _wf(
   if (!wfpath.startsWith(_mainpath(sym))) wfpath = _mainpath(sym, wfpath);
   wfpath = correctpath(wfpath);
 
-  if (sym && wfpath.endsWith("_main.json")) {
+  if (
+    sym &&
+    wfpath.endsWith("_main.json") &&
+    (!fileType || fileType === "main")
+  ) {
     if (!i.splitterData[sym].actualMainFiles)
       i.splitterData[sym].actualMainFiles = {};
     i.splitterData[sym].actualMainFiles[wfpath] = wffile;
@@ -33,22 +38,31 @@ export function _wf(
       };
     }
   } else {
-    if (!i.splitterData[sym].actualFiles) i.splitterData[sym].actualFiles = {};
-    i.splitterData[sym].actualFiles[wfpath] = wffile;
+    if (!fileType || fileType === "file") {
+      if (!i.splitterData[sym].actualFiles)
+        i.splitterData[sym].actualFiles = {};
+      i.splitterData[sym].actualFiles[wfpath] = wffile;
 
-    if (!i.splitterData[sym].files[wfpath]) {
-      i.splitterData[sym].files[wfpath] = () => {
-        if (!i.splitterData[sym].actualFiles[wfpath]) {
-          let file = _rf(sym, wfpath, true);
-          let file_ = { ...file, lastUsed: Date.now() };
-          i.splitterData[sym].actualFiles[wfpath] = file_;
-          return file_;
-        }
+      if (!i.splitterData[sym].files[wfpath]) {
+        i.splitterData[sym].files[wfpath] = () => {
+          if (!i.splitterData[sym].actualFiles[wfpath]) {
+            let file = _rf(sym, wfpath, true);
+            let file_ = { ...file, lastUsed: Date.now() };
+            i.splitterData[sym].actualFiles[wfpath] = file_;
+            return file_;
+          }
 
-        return i.splitterData[sym].actualFiles[wfpath];
-      };
+          return i.splitterData[sym].actualFiles[wfpath];
+        };
+      }
     }
   }
+
+  let wfpathdir = wfpath.split("/").slice(0, -1).join("/");
+  if (!fs.existsSync(wfpathdir))
+    fs.mkdirSync(wfpathdir, {
+      recursive: true,
+    });
 
   try {
     switch (typeof wffile) {

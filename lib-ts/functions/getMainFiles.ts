@@ -1,25 +1,37 @@
 import { i } from "..";
 import { _rf } from "./_rf";
+import { getKeysForMainFile } from "./getKeysForMainFile";
 import { getMainPaths } from "./getMainPaths";
+import { moveToKeysFiles } from "./moveToKeysFiles";
 
 export function getMainFiles(sym: string) {
-    let mainPaths = getMainPaths(sym);
+  let mainPaths = getMainPaths(sym);
 
-    let mainFiles = {};
+  let mainFiles = {};
 
-    Object.keys(mainPaths).forEach(dir => {
-        mainFiles[dir] = () => {
-            if (!i.splitterData[sym]?.actualMainFiles?.[dir]) {
-                let file = _rf(sym, dir, true);
-                i.splitterData[sym].actualMainFiles[dir] = {...file, lastUsed: Date.now()};
-                return file;
-            };
+  Object.keys(mainPaths).forEach((mainFilePath) => {
+    mainFiles[mainFilePath] = () => {
+      if (!i.splitterData[sym]?.actualMainFiles?.[mainFilePath]) {
+        let file = _rf(sym, mainFilePath, true);
+        let mainFileData = { ...file, lastUsed: Date.now() };
+        if (mainFileData.keys) moveToKeysFiles(sym, mainFilePath);
 
-            return i.splitterData[sym].actualMainFiles[dir];
-        };
-    });
+        mainFileData.keysMoved = true;
+        mainFileData.keys = getKeysForMainFile(sym, mainFilePath);
+        // Object.defineProperty(mainFileData, "keys", {
+        //   get() {
+        //     return getKeysForMainFile(sym, mainFilePath);
+        //   },
+        // });
+        i.splitterData[sym].actualMainFiles[mainFilePath] = mainFileData;
+        return i.splitterData[sym].actualMainFiles[mainFilePath];
+      }
 
-    i.splitterData[sym].mainFiles = mainFiles;
+      return i.splitterData[sym].actualMainFiles[mainFilePath];
+    };
+  });
 
-    return mainFiles;
-};
+  i.splitterData[sym].mainFiles = mainFiles;
+
+  return mainFiles;
+}

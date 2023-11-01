@@ -10,7 +10,7 @@ export function getMainPaths(sym: string) {
   function rd(dirpath: string) {
     let dir = fs.readdirSync(dirpath, { withFileTypes: true });
 
-    let mains = dir.filter((a) => a.name == "_main.json");
+    let mains = dir.filter((a) => a.name === "_main.json");
     if (mains.length > 0)
       mainPaths[correctpath(path.resolve(dirpath, mains[0].name))] = path
         .resolve(dirpath, mains[0].name)

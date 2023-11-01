@@ -5,8 +5,8 @@ export type getFileByKeysReturn = {
     path_main: string | undefined;
     object: Record<string, any> | undefined;
     object_: Record<string, any> | undefined;
-    object_main: Record<string, any> | undefined;
-    object_main_: Record<string, any> | undefined;
+    object_main: mainFileType | undefined;
+    object_main_: mainFileType | undefined;
     keyfound: boolean;
     filenum: number | undefined;
     keys: string | string[];
@@ -21,8 +21,10 @@ export type mainFileType = {
     num: number;
     keynames: string[];
     hasChanges?: string[];
+    keysMoved?: boolean;
 };
 export type fileEntryType = Record<string, any>;
 export type fileType = Record<string, any | fileEntryType>;
 export type deleteKeySyncrettype = boolean | undefined;
 export declare const maxJSONSize: 4194304;
+export declare const defaultKeysFileSize: 200000;

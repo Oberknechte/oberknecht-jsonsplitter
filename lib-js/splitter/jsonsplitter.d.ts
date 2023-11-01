@@ -6,12 +6,15 @@ export declare class jsonsplitter {
     #private;
     get symbol(): string;
     oberknechtEmitter: oberknechtEmitter;
-    get _mainpaths(): any;
-    get _mainfiles(): any;
+    get _mainPaths(): any;
+    get _mainFiles(): any;
+    get _keyspaths(): any;
+    get _keysFiles(): any;
     get _paths(): any;
     get _files(): any;
     get _actions(): any;
     _options: jsonsplitteroptions;
+    loadTimes: any[];
     constructor(options: jsonsplitteroptions);
     addAction: (action: string) => void;
     on: (type: string, callback: typeof onCallback) => void;
@@ -44,4 +47,8 @@ export declare class jsonsplitter {
     getKeyFromObjectSync: (object: Record<string, any>, keys: string | string[], emiterr?: boolean) => any;
     deleteKeyFromObjectSync: (object: Record<string, any>, keys: string | string[], emiterr?: boolean) => Record<string, any>;
     recreateAllSync: () => void;
+    addKeyToFileKeys: (keypath: string[] | string, key: string, fileNum: number) => Record<string, any>;
+    addHasChanges: (mainFilePath: string, hasChangesPath?: string) => void;
+    recreateMainFiles: () => void;
+    getMainKeysKeySync: (key: string) => any;
 }

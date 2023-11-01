@@ -20,6 +20,11 @@ const _log_1 = require("../functions/_log");
 const fs_1 = __importDefault(require("fs"));
 const getMainPaths_1 = require("../functions/getMainPaths");
 const checkSize_1 = require("../functions/checkSize");
+const getKeysPaths_1 = require("../functions/getKeysPaths");
+const getKeysFiles_1 = require("../functions/getKeysFiles");
+const moveToKeysFiles_1 = require("../functions/moveToKeysFiles");
+const getKeyFromKeysFiles_1 = require("../functions/getKeyFromKeysFiles");
+const addKeyToFileKeys_1 = require("../functions/addKeyToFileKeys");
 const slashreg = /^\/|\/$/g;
 const _mainreg = /_main\.json$/;
 let clientSymNum = 0;
@@ -29,11 +34,17 @@ class jsonsplitter {
         return this.#symbol;
     }
     oberknechtEmitter = new oberknecht_emitters_1.oberknechtEmitter();
-    get _mainpaths() {
+    get _mainPaths() {
         return __1.i.splitterData[this.symbol]?.mainPaths ?? (0, getMainPaths_1.getMainPaths)(this.symbol);
     }
-    get _mainfiles() {
+    get _mainFiles() {
         return __1.i.splitterData[this.symbol]?.mainFiles ?? (0, getMainFiles_1.getMainFiles)(this.symbol);
+    }
+    get _keyspaths() {
+        return __1.i.splitterData[this.symbol]?.keysPaths ?? (0, getKeysPaths_1.getKeysPaths)(this.symbol);
+    }
+    get _keysFiles() {
+        return __1.i.splitterData[this.symbol]?.keysFiles ?? (0, getKeysFiles_1.getKeysFiles)(this.symbol);
     }
     get _paths() {
         return __1.i.splitterData[this.symbol]?.paths ?? (0, getPaths_1.getPaths)(this.symbol);
@@ -45,6 +56,7 @@ class jsonsplitter {
         return __1.i.splitterData[this.symbol].actions ?? [];
     }
     _options;
+    loadTimes = [];
     constructor(options) {
         let options_ = (options ?? {});
         options_.child_folders_keys = options_?.child_folders_keys ?? 1;
@@ -66,6 +78,7 @@ class jsonsplitter {
         __1.i.splitterData[this.symbol] = {
             actualFiles: {},
             actualMainFiles: {},
+            actualKeysFiles: {},
         };
         this._options = __1.i.splitterData[this.symbol]._options = options_;
         __1.i.oberknechtEmitter[this.symbol] = this.oberknechtEmitter;
@@ -73,6 +86,7 @@ class jsonsplitter {
         // process.on("uncaughtException", e => this.oberknechtEmitter.emitError("uncaughtException", e));
         (0, getMainFiles_1.getMainFiles)(this.symbol);
         (0, getFiles_1.getFiles)(this.symbol);
+        (0, getKeysFiles_1.getKeysFiles)(this.symbol);
         __1.i.splitterData[this.symbol].filechangeInterval = setInterval(() => {
             (0, fileChange_1.fileChange)(this.symbol, true);
         }, options_.filechange_interval ?? 15000);
@@ -278,12 +292,13 @@ class jsonsplitter {
         let lastI = 0;
         let keynamesmatched = false;
         const keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
+        let start = Date.now();
         for (let i = 0; i < keypath_.length; i++) {
             let dirpathkeys = this.getDirPathsByKeys(keypath_.slice(0, i + 1));
-            let filteredkeypath = Object.keys(this._mainpaths).filter((b) => new RegExp(`^${dirpathkeys[0]}\/_main\.json$`).test(b));
-            if (filteredkeypath.length > 0) {
+            let filteredkeypath = Object.keys(this._mainPaths).filter((b) => new RegExp(`^${dirpathkeys[0]}\/_main\.json$`).test(b));
+            if ((filteredkeypath.length ?? 0) > 0) {
                 r.path_main = filteredkeypath[0];
-                r.object_main = this._mainfiles[r.path_main];
+                r.object_main = this._mainFiles[r.path_main];
                 r.dirpath = dirpathkeys[1];
                 r.dirpaths = Object.keys(this._paths).filter((a) => a.startsWith(r.dirpath));
                 r.filenum = r.object_main().filenum;
@@ -349,7 +364,6 @@ class jsonsplitter {
             objmain.filenum = 0;
             objmain.filekeynum = 0;
             objmain.num = 0;
-            objmain.keys = {};
             objmain.keynames = obj.path;
             if (keychunks.length === 0)
                 (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `0.json`]), this_.createObjectFromKeys(obj.path, {}));
@@ -358,6 +372,7 @@ class jsonsplitter {
                 objmain.num += keychunk.length;
                 objmain.filekeynum = keychunk.length;
                 objmain.filenum = i;
+                objmain.keys = {};
                 keychunk.forEach((a) => {
                     keychunk_[a] = obj.object[a];
                     objmain.keys[a] = i;
@@ -366,6 +381,7 @@ class jsonsplitter {
                 (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `${i}.json`]), chunkfile);
             });
             (0, _wf_1._wf)(this_.symbol, objmainpath, objmain);
+            this_.recreateMainFiles();
         }
         function fromArr(a) {
             if (!Array.isArray(a))
@@ -393,8 +409,11 @@ class jsonsplitter {
     };
     getKeySync = (keypath, emitErr) => {
         this.addAction(`getKeySync`);
+        let start = Date.now();
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
         let objpath = this.getFileByKeys(keypath_);
+        let end = Date.now();
+        oberknecht_utils_1.arrayModifiers.push(this.loadTimes, [["getKeySync", end - start, Date.now()]], 50);
         if (keypath_.length > (objpath.object_main?.keynames?.length ?? 0)) {
             if (!objpath.keyfound) {
                 let err = Error(`objpath.keyfound is false (keypath: ${keypath_})`);
@@ -460,14 +479,10 @@ class jsonsplitter {
             objpath.object_main.num++;
             objpath.object_main.filekeynum++;
         }
-        let newmainfile = this.addKeysToObjectSync(objpath.object_main, ["keys", objpath.keys[objpath.object_main.keynames.length]], objpath.object_main.filenum);
+        this.addKeyToFileKeys(keypath_, objpath.keys[objpath.object_main.keynames.length], objpath.object_main.filenum);
         let newfile = this.addKeysToObjectSync(file, keypath_, value);
         __1.i.splitterData[this.symbol].actualFiles[filepath] = newfile;
-        if (!newmainfile.hasChanges)
-            newmainfile.hasChanges = [];
-        if (!newmainfile.hasChanges.includes(filepath))
-            newmainfile.hasChanges.push(filepath);
-        __1.i.splitterData[this.symbol].actualMainFiles[mainpath] = newmainfile;
+        this.addHasChanges(objpath.path_main, filepath);
         if ((this._options.silent?._all || this._options.silent?.addKey) &&
             !nosilent)
             return true;
@@ -498,15 +513,10 @@ class jsonsplitter {
             else {
                 newfile = this.addKeysToObjectSync(objpath.object, keypath_, value);
             }
-            if (!objpath.object_main.hasChanges)
-                objpath.object_main.hasChanges = [];
-            if (!noAppendNewFile &&
-                !objpath.object_main?.hasChanges?.includes(filePath)) {
-                objpath.object_main.hasChanges.push(filePath);
+            this.addHasChanges(objpath.path_main, filePath);
+            if (!noAppendNewFile) {
                 __1.i.splitterData[this.symbol].actualFiles[filePath] = newfile;
             }
-            __1.i.splitterData[this.symbol].actualMainFiles[mainpath] =
-                objpath.object_main;
         }
         if ((this._options.silent?._all || this._options.silent?.editKey) &&
             !nosilent)
@@ -538,15 +548,7 @@ class jsonsplitter {
             else {
                 newfile = this.addAppendKeysToObjectSync(objpath.object, keypath_, value);
             }
-            if (!objpath.object_main.hasChanges)
-                objpath.object_main.hasChanges = [];
-            if (!noAppendNewFile &&
-                !objpath.object_main?.hasChanges?.includes(filepath)) {
-                objpath.object_main.hasChanges.push(filepath);
-                __1.i.splitterData[this.symbol].actualFiles[filepath] = newfile;
-            }
-            __1.i.splitterData[this.symbol].actualMainFiles[mainpath] =
-                objpath.object_main;
+            this.addHasChanges(objpath.path_main, filepath);
         }
         if ((this._options.silent?._all || this._options.silent?.editKeyAdd) &&
             !nosilent)
@@ -570,21 +572,18 @@ class jsonsplitter {
             (objpath.object_main?.keynames?.length ??
                 this._options?.child_folders_keys)) {
             let newfile = this.deleteKeyFromObjectSync(file, keypath_, emiterr);
-            let mainfile = objpath.object_main;
-            if (!mainfile.hasChanges)
-                mainfile.hasChanges = [];
-            if (!mainfile.hasChanges.includes(filepath))
-                mainfile.hasChanges.push(filepath);
+            this.addHasChanges(objpath.path_main, filepath);
             if (keypath_.length === objpath.object_main.keynames.length + 1) {
+                let mainfile = objpath.object_main;
                 this.deleteKeyFromObjectSync(mainfile, [
                     "keys",
                     keypath_[objpath.object_main.keynames.length],
                 ]);
                 mainfile.num--;
                 mainfile.filekeynum--;
-                mainfile.hasChanges.push(objpath.path_main);
+                this.addHasChanges(objpath.path_main);
+                __1.i.splitterData[this.symbol].actualMainFiles[mainpath] = mainfile;
             }
-            __1.i.splitterData[this.symbol].actualMainFiles[mainpath] = mainfile;
             __1.i.splitterData[this.symbol].actualFiles[filepath] = newfile;
             if ((this._options.silent?._all || this._options.silent?.deleteKey) &&
                 !nosilent)
@@ -685,8 +684,8 @@ class jsonsplitter {
         return object;
     };
     recreateAllSync = () => {
-        Object.keys(this._mainfiles).forEach((a) => {
-            const mainKeynames = this._mainfiles[a]().keynames;
+        Object.keys(this._mainFiles).forEach((a) => {
+            const mainKeynames = this._mainFiles[a]().keynames;
             const obj = this.addAppendKeysToObjectSync({}, mainKeynames, this.getKeySync(mainKeynames));
             const rmFilePaths = Object.keys(this._files).filter((b) => new RegExp(`^${(0, oberknecht_utils_1.regexEscape)(a.split("/").slice(0, -1).join("/"))}\/\\d+\.json`).test(b));
             [a, ...rmFilePaths].forEach((b) => fs_1.default.rmSync(b));
@@ -696,6 +695,31 @@ class jsonsplitter {
             this.save();
         }
         catch (e) { }
+    };
+    addKeyToFileKeys = (keypath, key, fileNum) => {
+        let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
+        let objpath = this.getFileByKeys(keypath_.slice(0, this._options.child_folders_keys));
+        return (0, addKeyToFileKeys_1.addKeyToFileKeys)(this.symbol, objpath.path_main, key, fileNum);
+    };
+    addHasChanges = (mainFilePath, hasChangesPath) => {
+        let mainFile = __1.i.splitterData[this.symbol].actualMainFiles[mainFilePath];
+        if (!mainFile.hasChanges)
+            mainFile.hasChanges = [];
+        if (!hasChangesPath)
+            mainFile.hasKeyChanges = true;
+        else if (!mainFile.hasChanges.includes(hasChangesPath))
+            mainFile.hasChanges.push(hasChangesPath);
+    };
+    recreateMainFiles = () => {
+        Object.keys(this._mainFiles).forEach((mainFilePath) => {
+            (0, moveToKeysFiles_1.moveToKeysFiles)(this.symbol, mainFilePath);
+            if (this._options.debug > 3)
+                console.debug(`Recreated main file ${mainFilePath}`);
+        });
+        this.save();
+    };
+    getMainKeysKeySync = (key) => {
+        return (0, getKeyFromKeysFiles_1.getKeyFromKeysFiles)(this.symbol, key);
     };
 }
 exports.jsonsplitter = jsonsplitter;

@@ -1,4 +1,4 @@
-import { arrayModifiers } from "oberknecht-utils";
+import { arrayModifiers, recreate } from "oberknecht-utils";
 import { i } from "..";
 import { _log } from "../functions/_log";
 import { _wf } from "../functions/_wf";
@@ -17,12 +17,15 @@ export async function fileChange(sym: string, auto?: boolean) {
       );
 
     if (!i.splitterData[sym]?.actualFiles) return;
-    Object.keys(i.splitterData[sym].actualMainFiles).forEach((mainfilepath) => {
-      let mainFile = i.splitterData[sym].actualMainFiles[mainfilepath];
-      if ((mainFile.hasChanges ?? []).length === 0) return;
+    Object.keys(i.splitterData[sym].actualMainFiles).forEach((mainFilePath) => {
+      let mainFile = i.splitterData[sym].actualMainFiles[mainFilePath];
+      let mainFile_ = { ...mainFile };
+      if (mainFile_.keysMoved) delete mainFile_.keys;
+      if ((mainFile_.hasChanges ?? []).length === 0 && !mainFile_.hasKeyChanges)
+        return _wf(sym, mainFilePath, mainFile_, "main");
 
       arrayModifiers
-        .removeDuplicates(mainFile.hasChanges)
+        .removeDuplicates(mainFile_.hasChanges)
         .forEach((filepath: string) => {
           if (filepath.length === 0 || filepath.endsWith("_main.json")) return;
           changed_files++;
@@ -32,9 +35,19 @@ export async function fileChange(sym: string, auto?: boolean) {
           else delete i.splitterData[sym].actualFiles[filepath];
         });
 
-      mainFile.hasChanges = [];
-      if (mainFile.lastUsed) delete mainFile.lastUsed;
-      _wf(sym, mainfilepath, mainFile);
+      if (mainFile_.hasKeyChanges) delete mainFile_.hasKeyChanges;
+
+      mainFile_.hasChanges = [];
+      if (mainFile_.lastUsed) delete mainFile_.lastUsed;
+      _wf(sym, mainFilePath, mainFile_, "main");
+    });
+
+    Object.keys(i.splitterData[sym].actualKeysFiles).forEach((keysFilePath) => {
+      let keysFile = i.splitterData[sym].actualKeysFiles[keysFilePath];
+      if (!keysFile.hasChanges) return;
+      delete keysFile.hasChanges;
+      _wf(sym, keysFilePath, keysFile);
+      changed_files++;
     });
 
     i.oberknechtEmitter[sym].emit(
