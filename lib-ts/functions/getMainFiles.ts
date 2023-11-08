@@ -1,10 +1,12 @@
 import { i } from "..";
 import { _rf } from "./_rf";
+import { debugLog } from "./debugLog";
 import { getKeysForMainFile } from "./getKeysForMainFile";
 import { getMainPaths } from "./getMainPaths";
 import { moveToKeysFiles } from "./moveToKeysFiles";
 
 export function getMainFiles(sym: string) {
+  debugLog(sym, "getMainFiles", ...arguments);
   let mainPaths = getMainPaths(sym);
 
   let mainFiles = {};

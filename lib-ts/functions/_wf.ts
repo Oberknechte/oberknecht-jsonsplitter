@@ -3,6 +3,7 @@ import { _rf } from "./_rf";
 import { _mainpath } from "./_mainpath";
 import fs from "fs";
 import { i } from "..";
+import { debugLog } from "./debugLog";
 
 export function _wf(
   sym: string,
@@ -10,6 +11,7 @@ export function _wf(
   wffile: string | object | Buffer,
   fileType?: string
 ) {
+  debugLog(sym, "_wf", ...arguments);
   if (!wfpath) return new Error(`_wf: wfpath is undefined`);
   if (!wffile) return new Error(`_wf: wffile is undefined`);
 

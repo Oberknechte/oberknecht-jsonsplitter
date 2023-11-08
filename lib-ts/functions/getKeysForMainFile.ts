@@ -1,8 +1,10 @@
-import { addAppendKeysToObject } from "oberknecht-utils";
+import { addAppendKeysToObject, concatJSON } from "oberknecht-utils";
 import { i } from "..";
 import { getKeysFiles } from "./getKeysFiles";
+import { debugLog } from "./debugLog";
 
 export function getKeysForMainFile(sym: string, mainFilePath: string) {
+  debugLog(sym, "getKeysForMainFile", ...arguments);
   let keys = {};
 
   getKeysFiles(sym);
@@ -14,7 +16,7 @@ export function getKeysForMainFile(sym: string, mainFilePath: string) {
     )
     .forEach((keysFilePath) => {
       let keysFile = i.splitterData[sym].keysFiles[keysFilePath]();
-      addAppendKeysToObject(keys, [], keysFile.keys);
+      keys = concatJSON([keys, keysFile.keys]);
     });
 
   return keys;

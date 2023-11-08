@@ -4,7 +4,9 @@ exports.removeKeyFromKeysFile = void 0;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const getKeyFromKeysFiles_1 = require("./getKeyFromKeysFiles");
 const __1 = require("..");
+const debugLog_1 = require("./debugLog");
 function removeKeyFromKeysFile(sym, key) {
+    (0, debugLog_1.debugLog)(sym, "removeKeyFromKeysFile", ...arguments);
     let keyData = (0, getKeyFromKeysFiles_1.getKeyFromKeysFiles)(sym, key, true);
     if (!keyData.keysFilePath)
         return;

@@ -1,7 +1,9 @@
 import { i } from "..";
 import { _log } from "./_log";
+import { debugLog } from "./debugLog";
 
 export function clearCacheSmart(sym: string, excludeMainFiles?: boolean) {
+  debugLog(sym, "clearCacheSmart", ...arguments);
   if (i.splitterData[sym]._options?.debug > 2)
     _log(0, `[CACHE] [SMART] Clearing`);
   let clearedFiles = 0;

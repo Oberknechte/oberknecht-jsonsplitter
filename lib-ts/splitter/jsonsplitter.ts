@@ -79,6 +79,7 @@ export class jsonsplitter {
   loadTimes = [];
 
   constructor(options: jsonsplitteroptions) {
+    const loadStart = Date.now();
     let options_: jsonsplitteroptions = (options ?? {}) as jsonsplitteroptions;
     options_.child_folders_keys = options_?.child_folders_keys ?? 1;
     options_.max_keys_in_file = options_?.max_keys_in_file ?? 3000;
@@ -96,7 +97,7 @@ export class jsonsplitter {
       options_.cacheSettings.maxMainFileCacheAge ?? 600000;
 
     if (options_.debug >= 0)
-      _log(1, `[JSONSPLITTER] Initializing \tDirectory: ${options_.startpath}`);
+      _log(1, `[JSONSPLITTER] Initializing \t${this.symbol} \tDirectory: ${options_.startpath}`);
 
     i.splitterData[this.symbol] = {
       actualFiles: {},
@@ -122,15 +123,25 @@ export class jsonsplitter {
       i.splitterData[this.symbol].clearCacheInterval = setInterval(() => {
         clearCacheSmart(this.symbol);
       }, [options_.cacheSettings.autoClearInterval, options_.cacheSettings.maxFileCacheAge, options_.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
+
+    const loadEnd = Date.now();
+    if (options_.debug >= 0)
+      _log(
+        1,
+        `[JSONSPLITTER] Initialized \t\t${this.symbol} \tDirectory: ${options_.startpath} (Took ${
+          loadEnd - loadStart
+        } ms)`
+      );
   }
 
-  addAction = (action: string) => {
+  addAction = (action: string, args?: any[]) => {
     if (!i.splitterData[this.symbol].actions)
       i.splitterData[this.symbol].actions = [];
     i.splitterData[this.symbol].actions = i.splitterData[
       this.symbol
     ].actions.slice(0, 9);
-    i.splitterData[this.symbol].actions.push(Error(action));
+    i.splitterData[this.symbol].actions.push([Error(action), args]);
+    this._options.actionCallback?.(action, args);
   };
 
   on = (type: string, callback: typeof onCallback) => {
@@ -999,7 +1010,9 @@ export class jsonsplitter {
       keypath_.slice(0, this._options.child_folders_keys)
     );
 
-    return addKeyToFileKeys(this.symbol, objpath.path_main, key, fileNum);
+    // return addKeyToFileKeys(this.symbol, objpath.path_main, key, fileNum);
+    // return addKeyToFileKeys(this.symbol, objpath.path_main, addKeysToObject({}, ["keys", key], fileNum));
+    return addKeyToFileKeys(this.symbol, objpath.path_main, `${key},${fileNum}`);
   };
 
   addHasChanges = (mainFilePath: string, hasChangesPath?: string) => {

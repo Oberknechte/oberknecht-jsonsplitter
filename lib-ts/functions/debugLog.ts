@@ -1,0 +1,92 @@
+import { log, sleep } from "oberknecht-utils";
+import { i } from "..";
+import { _mainpath } from "./_mainpath";
+import path from "path";
+import fs from "fs";
+let fileName;
+let appendLogs = [];
+let appendLogTriggered = false;
+
+export function debugLog(sym: string, debugName: string, ...functionArgs: any) {
+  if (
+    i.splitterData[sym]?._options?.debugs?.some(
+      (a) =>
+        [debugName, "all"].includes(a) &&
+        !i.splitterData[sym]._options.debugsWithout?.includes(debugName)
+    )
+  )
+    log(
+      0,
+      sym,
+      `Executed function`,
+      debugName,
+      ...(!i.splitterData[sym]._options.debugsWithoutArgs
+        ? functionArgs.filter((a) => a !== sym)
+        : [])
+    );
+
+  if (
+    i.splitterData[sym]?._options?.debugsLogDir &&
+    !i.splitterData[sym]?._options?.debugLogs?.some(
+      (a) =>
+        [debugName, "all"].includes(a) &&
+        !i.splitterData[sym]._options.debugsLogsWithout?.includes(debugName)
+    )
+  ) {
+    appendLogs.push(
+      [
+        [
+          sym,
+          Date.now(),
+          debugName,
+          ...(!i.splitterData[sym]._options.debugsLogWithoutArgs
+            ? [
+                functionArgs.map((a) =>
+                  typeof a !== "string"
+                    ? typeof a === "object"
+                      ? JSON.stringify(a)
+                      : a?.toString()
+                    : a
+                ),
+              ]
+            : []),
+          ...(!i.splitterData[sym]._options.debugsLogWithoutStack
+            ? ["\n", Error("logpath").stack.toString()]
+            : []),
+        ].join(" "),
+      ].join("")
+    );
+  }
+
+  async function appendDebugLogs() {
+    console.log(
+      "appendDebugLogs triggered 1",
+      appendLogTriggered,
+      appendLogs.length
+    );
+    appendLogTriggered = true;
+    if (appendLogs.length === 0) return (appendLogTriggered = false);
+    console.log(
+      "appendDebugLogs triggered 2",
+      appendLogTriggered,
+      appendLogs.length
+    );
+    let debugsLogDir = _mainpath(
+      sym,
+      i.splitterData[sym]._options.debugsLogDir
+    );
+    if (!fs.existsSync(debugsLogDir)) fs.mkdirSync(debugsLogDir);
+    if (!fileName) fileName = `${sym}-${Date.now()}.log`;
+    let filePath = path.resolve(debugsLogDir, fileName);
+    let appendLogs_ = appendLogs.splice(0, appendLogs.length);
+    fs.appendFileSync(filePath, appendLogs_.join("\n"));
+
+    console.log("before sleep")
+    sleep(5000).then(() => {
+      console.log("after sleep")
+      appendDebugLogs();
+    });
+  }
+
+  if (appendLogTriggered === false) appendDebugLogs().catch(e => console.error(e))
+}

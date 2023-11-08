@@ -3,8 +3,10 @@ import { i } from "..";
 import fs from "fs";
 import { _mainpath } from "./_mainpath";
 import { correctpath } from "./correctpath";
+import { debugLog } from "./debugLog";
 
 export function getKeysPaths(sym: string) {
+  debugLog(sym, "getKeysPaths", ...arguments);
   let keysPaths = {};
 
   function rd(dirpath: string) {

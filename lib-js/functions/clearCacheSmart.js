@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.clearCacheSmart = void 0;
 const __1 = require("..");
 const _log_1 = require("./_log");
+const debugLog_1 = require("./debugLog");
 function clearCacheSmart(sym, excludeMainFiles) {
+    (0, debugLog_1.debugLog)(sym, "clearCacheSmart", ...arguments);
     if (__1.i.splitterData[sym]._options?.debug > 2)
         (0, _log_1._log)(0, `[CACHE] [SMART] Clearing`);
     let clearedFiles = 0;

@@ -3,8 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getKeysFiles = void 0;
 const __1 = require("..");
 const _rf_1 = require("./_rf");
+const debugLog_1 = require("./debugLog");
 const getKeysPaths_1 = require("./getKeysPaths");
 function getKeysFiles(sym) {
+    (0, debugLog_1.debugLog)(sym, "getKeysFiles", ...arguments);
     let keysPaths = (0, getKeysPaths_1.getKeysPaths)(sym);
     let keysFiles = {};
     Object.keys(keysPaths).forEach((dir) => {

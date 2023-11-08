@@ -9,7 +9,9 @@ const __1 = require("..");
 const fs_1 = __importDefault(require("fs"));
 const _mainpath_1 = require("./_mainpath");
 const correctpath_1 = require("./correctpath");
+const debugLog_1 = require("./debugLog");
 function getMainPaths(sym) {
+    (0, debugLog_1.debugLog)(sym, "getMainPaths", ...arguments);
     let mainPaths = {};
     function rd(dirpath) {
         let dir = fs_1.default.readdirSync(dirpath, { withFileTypes: true });

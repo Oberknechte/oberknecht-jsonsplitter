@@ -34,3 +34,4 @@ export type deleteKeySyncrettype = boolean | undefined;
 // export const maxJSONSize = 2097152 as const;
 export const maxJSONSize = 4194304 as const;
 export const defaultKeysFileSize = 200000 as const;
+export const defaultMoveToKeysFileChunkSize = 1000 as const;

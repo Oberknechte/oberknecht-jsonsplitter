@@ -1,5 +1,6 @@
 import { getKeyFromObject, isNullUndefined } from "oberknecht-utils";
 import { i } from "..";
+import { debugLog } from "./debugLog";
 
 type getKeyFromKeysFileReturnExtended = {
   value?: number;
@@ -15,6 +16,7 @@ export function getKeyFromKeysFiles<withKeysFilePathType extends Boolean>(
   key: string,
   withKeysFilePath?: withKeysFilePathType | undefined
 ) {
+  debugLog(sym, "getKeyFromKeysFiles", ...arguments);
   let val;
   let keysFilePath;
 

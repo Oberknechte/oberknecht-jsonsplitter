@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkSize = void 0;
 const __1 = require("..");
 const jsonsplitter_1 = require("../types/jsonsplitter");
-function checkSize(sym, file, object, size) {
+const debugLog_1 = require("./debugLog");
+function checkSize(sym, file, object, size, objectSizeMultiplier) {
+    (0, debugLog_1.debugLog)(sym, "checkSize", ...arguments);
     if (!file && !object)
         return false;
     const fileBuffer = !file
@@ -18,7 +20,7 @@ function checkSize(sym, file, object, size) {
     if (!object && fileBuffer)
         return fileBuffer.byteLength >= maxSize;
     if (!file && objectBuffer)
-        return objectBuffer.byteLength >= maxSize;
+        return objectBuffer.byteLength * (objectSizeMultiplier ?? 1) >= maxSize;
     return fileBuffer.byteLength + objectBuffer.byteLength >= maxSize;
 }
 exports.checkSize = checkSize;

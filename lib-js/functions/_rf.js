@@ -8,9 +8,11 @@ const __1 = require("..");
 const _mainpath_1 = require("./_mainpath");
 const _wf_1 = require("./_wf");
 const correctpath_1 = require("./correctpath");
+const debugLog_1 = require("./debugLog");
 const uncorrectPath_1 = require("./uncorrectPath");
 const fs_1 = __importDefault(require("fs"));
 function _rf(sym, rfpath, parse_json) {
+    (0, debugLog_1.debugLog)(sym, "_rf", ...arguments);
     if (!rfpath)
         return new Error(`_rf: rfpath is undefined`);
     let rfpath_ = (0, uncorrectPath_1.uncorrectpath)((0, _mainpath_1._mainpath)(sym, rfpath));

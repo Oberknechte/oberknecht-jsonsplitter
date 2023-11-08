@@ -9,7 +9,9 @@ const _rf_1 = require("./_rf");
 const _mainpath_1 = require("./_mainpath");
 const fs_1 = __importDefault(require("fs"));
 const __1 = require("..");
+const debugLog_1 = require("./debugLog");
 function _wf(sym, wfpath, wffile, fileType) {
+    (0, debugLog_1.debugLog)(sym, "_wf", ...arguments);
     if (!wfpath)
         return new Error(`_wf: wfpath is undefined`);
     if (!wffile)

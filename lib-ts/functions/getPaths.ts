@@ -3,8 +3,10 @@ import { i } from "..";
 import fs from "fs";
 import { _mainpath } from "./_mainpath";
 import { correctpath } from "./correctpath";
+import { debugLog } from "./debugLog";
 
 export function getPaths(sym: string) {
+  debugLog(sym, "getPaths", ...arguments);
   let paths = {};
   function rd(dirpath: string) {
     let dir = fs.readdirSync(dirpath, { withFileTypes: true });

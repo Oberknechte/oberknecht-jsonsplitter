@@ -1,8 +1,10 @@
 import { i } from "..";
 import { _rf } from "./_rf";
+import { debugLog } from "./debugLog";
 import { getPaths } from "./getPaths";
 
 export function getFiles(sym: string) {
+  debugLog(sym, "getFiles", ...arguments);
   let paths = getPaths(sym);
 
   let files = {};

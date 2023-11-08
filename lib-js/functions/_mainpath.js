@@ -7,7 +7,9 @@ exports._mainpath = void 0;
 const path_1 = __importDefault(require("path"));
 const __1 = require("..");
 const correctpath_1 = require("./correctpath");
+const debugLog_1 = require("./debugLog");
 function _mainpath(sym, path_) {
+    (0, debugLog_1.debugLog)(sym, "_mainpath", ...arguments);
     let defaultdir = __1.i.splitterData[sym]?._options?.startpath ?? process.cwd();
     if (!sym && !path_)
         return (0, correctpath_1.correctpath)(defaultdir);

@@ -3,8 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getKeyFromKeysFiles = void 0;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const __1 = require("..");
+const debugLog_1 = require("./debugLog");
 // : withKeysFilePathType extends true ? getKeyFromKeysFileReturnExtended | {} : getKeyFromKeysFileReturn | undefined
 function getKeyFromKeysFiles(sym, key, withKeysFilePath) {
+    (0, debugLog_1.debugLog)(sym, "getKeyFromKeysFiles", ...arguments);
     let val;
     let keysFilePath;
     function searchFile(files, n) {

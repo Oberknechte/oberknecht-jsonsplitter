@@ -3,10 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMainFiles = void 0;
 const __1 = require("..");
 const _rf_1 = require("./_rf");
+const debugLog_1 = require("./debugLog");
 const getKeysForMainFile_1 = require("./getKeysForMainFile");
 const getMainPaths_1 = require("./getMainPaths");
 const moveToKeysFiles_1 = require("./moveToKeysFiles");
 function getMainFiles(sym) {
+    (0, debugLog_1.debugLog)(sym, "getMainFiles", ...arguments);
     let mainPaths = (0, getMainPaths_1.getMainPaths)(sym);
     let mainFiles = {};
     Object.keys(mainPaths).forEach((mainFilePath) => {

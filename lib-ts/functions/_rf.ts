@@ -3,11 +3,13 @@ import { _mainpath } from "./_mainpath";
 import { _wf } from "./_wf";
 import { clearCacheBySize } from "./clearCacheBySize";
 import { correctpath } from "./correctpath";
+import { debugLog } from "./debugLog";
 import { joinCacheKeyPath } from "./joinCacheKeyPath";
 import { uncorrectpath } from "./uncorrectPath";
 import fs from "fs";
 
 export function _rf(sym: string, rfpath: string, parse_json?: boolean) {
+  debugLog(sym, "_rf", ...arguments);
   if (!rfpath) return new Error(`_rf: rfpath is undefined`);
   let rfpath_ = uncorrectpath(_mainpath(sym, rfpath));
 

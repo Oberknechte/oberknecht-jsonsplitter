@@ -28,3 +28,4 @@ export type fileType = Record<string, any | fileEntryType>;
 export type deleteKeySyncrettype = boolean | undefined;
 export declare const maxJSONSize: 4194304;
 export declare const defaultKeysFileSize: 200000;
+export declare const defaultMoveToKeysFileChunkSize: 1000;

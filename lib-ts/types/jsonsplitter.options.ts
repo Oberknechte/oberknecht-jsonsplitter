@@ -1,9 +1,38 @@
+export const jsonsplitterOptionsDebugs = [
+  "_cdir",
+  "_mainpath",
+  "_rf",
+  "_wf",
+  "addKeyToFileKeys",
+  "checkSize",
+  "clearCache",
+  "clearCacheSmart",
+  "getFiles",
+  "getKeyFromKeysFiles",
+  "getKeysFiles",
+  "getKeysForMainFile",
+  "getKeysPaths",
+  "getMainFiles",
+  "getMainPaths",
+  "moveToKeysFiles",
+  "removeKeyFromKeysFile",
+  "saveKeysFile",
+] as const;
+export type jsonsplitterOptionsDebugsType = typeof jsonsplitterOptionsDebugs[number];
+
 export type jsonsplitteroptions = {
   child_folders_keys?: number | 1;
   // > folder number before creating file
   // > higher numer = more subfolders (keynames) before single files
   // "store_keys_in_master": Boolean() ?? true,
   debug?: number | 2;
+  debugs?: jsonsplitterOptionsDebugsType[];
+  debugsWithout?: jsonsplitterOptionsDebugsType[];
+  debugsWithoutArgs?: boolean;
+  debugsLogDir?: string;
+  debugsLogsWithout: jsonsplitterOptionsDebugsType[];
+  debugsLogWithoutArgs?: boolean;
+  debugsLogWithoutStack?: boolean;
   max_keys_in_file?: number | 3000;
   // > keys of parent object are less then number create file
   startpath?: string | "./data";
@@ -24,4 +53,6 @@ export type jsonsplitteroptions = {
   };
   maxFileSize?: number; // In bytes
   maxKeysFileSize?: number | 200000; // In bytes
+  actionCallback?: Function;
+  moveToKeysFilesChunkSize?: number;
 };

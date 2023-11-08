@@ -1,8 +1,10 @@
 import path from "path";
 import { i } from "..";
 import { correctpath } from "./correctpath";
+import { debugLog } from "./debugLog";
 
 export function _mainpath(sym: string, path_?: string | string[]) {
+  debugLog(sym, "_mainpath", ...arguments);
   let defaultdir = i.splitterData[sym]?._options?.startpath ?? process.cwd();
   if (!sym && !path_) return correctpath(defaultdir);
   if (/^jsonsplitter-/.test(sym) && !path_)

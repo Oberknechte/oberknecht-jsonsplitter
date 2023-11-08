@@ -1,8 +1,10 @@
 import { i } from "..";
 import { _rf } from "./_rf";
+import { debugLog } from "./debugLog";
 import { getKeysPaths } from "./getKeysPaths";
 
 export function getKeysFiles(sym: string) {
+  debugLog(sym, "getKeysFiles", ...arguments);
   let keysPaths = getKeysPaths(sym);
 
   let keysFiles = {};

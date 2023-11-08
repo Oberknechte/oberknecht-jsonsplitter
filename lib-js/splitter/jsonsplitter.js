@@ -58,6 +58,7 @@ class jsonsplitter {
     _options;
     loadTimes = [];
     constructor(options) {
+        const loadStart = Date.now();
         let options_ = (options ?? {});
         options_.child_folders_keys = options_?.child_folders_keys ?? 1;
         options_.max_keys_in_file = options_?.max_keys_in_file ?? 3000;
@@ -74,7 +75,7 @@ class jsonsplitter {
         options_.cacheSettings.maxMainFileCacheAge =
             options_.cacheSettings.maxMainFileCacheAge ?? 600000;
         if (options_.debug >= 0)
-            (0, _log_1._log)(1, `[JSONSPLITTER] Initializing \tDirectory: ${options_.startpath}`);
+            (0, _log_1._log)(1, `[JSONSPLITTER] Initializing \t${this.symbol} \tDirectory: ${options_.startpath}`);
         __1.i.splitterData[this.symbol] = {
             actualFiles: {},
             actualMainFiles: {},
@@ -94,12 +95,16 @@ class jsonsplitter {
             __1.i.splitterData[this.symbol].clearCacheInterval = setInterval(() => {
                 (0, clearCacheSmart_1.clearCacheSmart)(this.symbol);
             }, [options_.cacheSettings.autoClearInterval, options_.cacheSettings.maxFileCacheAge, options_.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
+        const loadEnd = Date.now();
+        if (options_.debug >= 0)
+            (0, _log_1._log)(1, `[JSONSPLITTER] Initialized \t\t${this.symbol} \tDirectory: ${options_.startpath} (Took ${loadEnd - loadStart} ms)`);
     }
-    addAction = (action) => {
+    addAction = (action, args) => {
         if (!__1.i.splitterData[this.symbol].actions)
             __1.i.splitterData[this.symbol].actions = [];
         __1.i.splitterData[this.symbol].actions = __1.i.splitterData[this.symbol].actions.slice(0, 9);
-        __1.i.splitterData[this.symbol].actions.push(Error(action));
+        __1.i.splitterData[this.symbol].actions.push([Error(action), args]);
+        this._options.actionCallback?.(action, args);
     };
     on = (type, callback) => {
         return this.oberknechtEmitter.on(type, callback);
@@ -699,7 +704,9 @@ class jsonsplitter {
     addKeyToFileKeys = (keypath, key, fileNum) => {
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
         let objpath = this.getFileByKeys(keypath_.slice(0, this._options.child_folders_keys));
-        return (0, addKeyToFileKeys_1.addKeyToFileKeys)(this.symbol, objpath.path_main, key, fileNum);
+        // return addKeyToFileKeys(this.symbol, objpath.path_main, key, fileNum);
+        // return addKeyToFileKeys(this.symbol, objpath.path_main, addKeysToObject({}, ["keys", key], fileNum));
+        return (0, addKeyToFileKeys_1.addKeyToFileKeys)(this.symbol, objpath.path_main, `${key},${fileNum}`);
     };
     addHasChanges = (mainFilePath, hasChangesPath) => {
         let mainFile = __1.i.splitterData[this.symbol].actualMainFiles[mainFilePath];
