@@ -16,7 +16,7 @@ export function getMainFiles(sym: string) {
       if (!i.splitterData[sym]?.actualMainFiles?.[mainFilePath]) {
         let file = _rf(sym, mainFilePath, true);
         let mainFileData = { ...file, lastUsed: Date.now() };
-        if (mainFileData.keys) moveToKeysFiles(sym, mainFilePath);
+        if (mainFileData.keys && !i.splitterData[sym]._options.noAutoMove) moveToKeysFiles(sym, mainFilePath);
 
         mainFileData.keysMoved = true;
         mainFileData.keys = getKeysForMainFile(sym, mainFilePath);
