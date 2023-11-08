@@ -42,11 +42,9 @@ function debugLog(sym, debugName, ...functionArgs) {
         ].join(""));
     }
     async function appendDebugLogs() {
-        console.log("appendDebugLogs triggered 1", appendLogTriggered, appendLogs.length);
         appendLogTriggered = true;
         if (appendLogs.length === 0)
             return (appendLogTriggered = false);
-        console.log("appendDebugLogs triggered 2", appendLogTriggered, appendLogs.length);
         let debugsLogDir = (0, _mainpath_1._mainpath)(sym, __1.i.splitterData[sym]._options.debugsLogDir);
         if (!fs_1.default.existsSync(debugsLogDir))
             fs_1.default.mkdirSync(debugsLogDir);
@@ -55,13 +53,11 @@ function debugLog(sym, debugName, ...functionArgs) {
         let filePath = path_1.default.resolve(debugsLogDir, fileName);
         let appendLogs_ = appendLogs.splice(0, appendLogs.length);
         fs_1.default.appendFileSync(filePath, appendLogs_.join("\n"));
-        console.log("before sleep");
         (0, oberknecht_utils_1.sleep)(5000).then(() => {
-            console.log("after sleep");
             appendDebugLogs();
         });
     }
     if (appendLogTriggered === false)
-        appendDebugLogs().catch(e => console.error(e));
+        appendDebugLogs().catch((e) => console.error(e));
 }
 exports.debugLog = debugLog;
