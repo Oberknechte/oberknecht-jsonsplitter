@@ -20,7 +20,7 @@ function debugLog(sym, debugName, ...functionArgs) {
             : []));
     if (__1.i.splitterData[sym]?._options?.debugsLogDir &&
         !__1.i.splitterData[sym]?._options?.debugLogs?.some((a) => [debugName, "all"].includes(a) &&
-            !__1.i.splitterData[sym]._options.debugsLogsWithout?.includes(debugName))) {
+            !__1.i.splitterData[sym]._options.debugsLogWithout?.includes(debugName))) {
         appendLogs.push([
             [
                 sym,

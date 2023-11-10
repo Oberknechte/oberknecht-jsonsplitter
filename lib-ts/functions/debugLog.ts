@@ -30,7 +30,7 @@ export function debugLog(sym: string, debugName: string, ...functionArgs: any) {
     !i.splitterData[sym]?._options?.debugLogs?.some(
       (a) =>
         [debugName, "all"].includes(a) &&
-        !i.splitterData[sym]._options.debugsLogsWithout?.includes(debugName)
+        !i.splitterData[sym]._options.debugsLogWithout?.includes(debugName)
     )
   ) {
     appendLogs.push(
