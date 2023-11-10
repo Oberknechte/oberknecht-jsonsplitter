@@ -46,6 +46,7 @@ export async function fileChange(sym: string, auto?: boolean) {
       let keysFile = i.splitterData[sym].actualKeysFiles[keysFilePath];
       if (!keysFile.hasChanges) return;
       delete keysFile.hasChanges;
+      if (keysFile.lastUsed) delete keysFile.lastUsed;
       _wf(sym, keysFilePath, keysFile);
       changed_files++;
     });

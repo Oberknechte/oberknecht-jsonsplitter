@@ -704,9 +704,12 @@ class jsonsplitter {
     addKeyToFileKeys = (keypath, key, fileNum) => {
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
         let objpath = this.getFileByKeys(keypath_.slice(0, this._options.child_folders_keys));
-        // return addKeyToFileKeys(this.symbol, objpath.path_main, key, fileNum);
-        // return addKeyToFileKeys(this.symbol, objpath.path_main, addKeysToObject({}, ["keys", key], fileNum));
-        return (0, addKeyToFileKeys_1.addKeyToFileKeys)(this.symbol, objpath.path_main, `${key},${fileNum}`);
+        return (0, addKeyToFileKeys_1.addKeyToFileKeys)(this.symbol, objpath.path_main, (0, oberknecht_utils_1.addKeysToObject)({}, ["keys", key], fileNum));
+        // return addKeyToFileKeys(
+        //   this.symbol,
+        //   objpath.path_main,
+        //   `${key},${fileNum}`
+        // );
     };
     addHasChanges = (mainFilePath, hasChangesPath) => {
         let mainFile = __1.i.splitterData[this.symbol].actualMainFiles[mainFilePath];
@@ -721,7 +724,7 @@ class jsonsplitter {
         Object.keys(this._mainFiles).forEach((mainFilePath) => {
             (0, moveToKeysFiles_1.moveToKeysFiles)(this.symbol, mainFilePath);
             if (this._options.debug > 3)
-                console.debug(`Recreated main file ${mainFilePath}`);
+                (0, oberknecht_utils_1.log)(1, `Recreated main file ${mainFilePath} jsonsplitter: ${this.symbol}`);
         });
         this.save();
     };

@@ -13,7 +13,7 @@ function getKeysForMainFile(sym, mainFilePath) {
         .filter((a) => new RegExp(`${mainFilePath.replace(/\/_main\.json$/, "")}\\/keys\\/keys\\d+`).test(a))
         .forEach((keysFilePath) => {
         let keysFile = __1.i.splitterData[sym].keysFiles[keysFilePath]();
-        keys = (0, oberknecht_utils_1.concatJSON)([keys, keysFile.keys]);
+        keys = (0, oberknecht_utils_1.concatJSON)([keys, keysFile.keys ?? {}]);
     });
     return keys;
 }

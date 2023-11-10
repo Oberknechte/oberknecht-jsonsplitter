@@ -8,6 +8,7 @@ import {
   deleteKeyFromObject,
   extendedTypeof,
   isNullUndefined,
+  log,
   recreate,
   regexEscape,
 } from "oberknecht-utils";
@@ -97,7 +98,10 @@ export class jsonsplitter {
       options_.cacheSettings.maxMainFileCacheAge ?? 600000;
 
     if (options_.debug >= 0)
-      _log(1, `[JSONSPLITTER] Initializing \t${this.symbol} \tDirectory: ${options_.startpath}`);
+      _log(
+        1,
+        `[JSONSPLITTER] Initializing \t${this.symbol} \tDirectory: ${options_.startpath}`
+      );
 
     i.splitterData[this.symbol] = {
       actualFiles: {},
@@ -128,9 +132,9 @@ export class jsonsplitter {
     if (options_.debug >= 0)
       _log(
         1,
-        `[JSONSPLITTER] Initialized \t\t${this.symbol} \tDirectory: ${options_.startpath} (Took ${
-          loadEnd - loadStart
-        } ms)`
+        `[JSONSPLITTER] Initialized \t\t${this.symbol} \tDirectory: ${
+          options_.startpath
+        } (Took ${loadEnd - loadStart} ms)`
       );
   }
 
@@ -1010,9 +1014,16 @@ export class jsonsplitter {
       keypath_.slice(0, this._options.child_folders_keys)
     );
 
-    // return addKeyToFileKeys(this.symbol, objpath.path_main, key, fileNum);
-    // return addKeyToFileKeys(this.symbol, objpath.path_main, addKeysToObject({}, ["keys", key], fileNum));
-    return addKeyToFileKeys(this.symbol, objpath.path_main, `${key},${fileNum}`);
+    return addKeyToFileKeys(
+      this.symbol,
+      objpath.path_main,
+      addKeysToObject({}, ["keys", key], fileNum)
+    );
+    // return addKeyToFileKeys(
+    //   this.symbol,
+    //   objpath.path_main,
+    //   `${key},${fileNum}`
+    // );
   };
 
   addHasChanges = (mainFilePath: string, hasChangesPath?: string) => {
@@ -1027,7 +1038,7 @@ export class jsonsplitter {
     Object.keys(this._mainFiles).forEach((mainFilePath) => {
       moveToKeysFiles(this.symbol, mainFilePath);
       if (this._options.debug > 3)
-        console.debug(`Recreated main file ${mainFilePath}`);
+        log(1, `Recreated main file ${mainFilePath} jsonsplitter: ${this.symbol}`);
     });
 
     this.save();

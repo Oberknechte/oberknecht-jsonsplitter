@@ -16,7 +16,8 @@ export function getKeysForMainFile(sym: string, mainFilePath: string) {
     )
     .forEach((keysFilePath) => {
       let keysFile = i.splitterData[sym].keysFiles[keysFilePath]();
-      keys = concatJSON([keys, keysFile.keys]);
+
+      keys = concatJSON([keys, keysFile.keys ?? {}]);
     });
 
   return keys;

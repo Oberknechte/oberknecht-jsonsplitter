@@ -16,7 +16,8 @@ import { debugLog } from "./debugLog";
 export function addKeyToFileKeys(
   sym: string,
   mainFilePath: string,
-  chunk: string
+  chunk: Record<string, any>,
+  alwaysNew?: boolean
 ) {
   debugLog(sym, "addKeyToFileKeys", ...arguments);
 
@@ -29,14 +30,20 @@ export function addKeyToFileKeys(
         parseInt(a.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, "")) -
         parseInt(b.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, ""))
     )
-    .at(-1);
+    .at(-1)
+    ?.toString();
 
   let keysFile;
+  let isFirst = false;
+  let isNew = false;
   if (!keysFilePath) {
     keysFilePath = parseKeysFilePath(mainFilePath, "keys0.json");
-    _wf(sym, keysFilePath, {}, "keysFile");
+    i.splitterData[sym].actualKeysFiles[keysFilePath] = {};
+    // _wf(sym, keysFilePath, {}, "keysFile");
+    saveKeysFile(sym, keysFilePath);
     getKeysFiles(sym);
     keysFile = i.splitterData[sym].keysFiles[keysFilePath]();
+    isFirst = isNew = true;
   }
 
   let lastFileNum = parseInt(
@@ -46,32 +53,42 @@ export function addKeyToFileKeys(
     keysFile = i.splitterData[sym].keysFiles[keysFilePath]?.() ?? {};
 
   if (
-    checkSize(
-      sym,
-      keysFile,
-      chunk,
-      i.splitterData[sym]._options.maxKeysFileSize ?? defaultKeysFileSize
-    )
+    (!isFirst && alwaysNew) ||
+    (!isFirst &&
+      checkSize(
+        sym,
+        keysFile,
+        chunk,
+        i.splitterData[sym]._options.maxKeysFileSize ?? defaultKeysFileSize
+      ))
   ) {
     saveKeysFile(sym, keysFilePath);
     lastFileNum++;
     keysFilePath = parseKeysFilePath(mainFilePath, `keys${lastFileNum}.json`);
-    _wf(sym, keysFilePath, JSON.stringify({}));
+    i.splitterData[sym].actualKeysFiles[keysFilePath] = {};
+    saveKeysFile(sym, keysFilePath);
+    // _wf(sym, keysFilePath, JSON.stringify({}));
     getKeysFiles(sym);
     keysFile = i.splitterData[sym].keysFiles[keysFilePath]();
+    isNew = true;
   }
 
   // let newFile = concatJSON([keysFile, addKeysToObject({}, "keys", chunk)]);
+  // let newFile = keysFile;
+  // chunk.split(";").forEach((a) => {
+  //   newFile = addKeysToObject(
+  //     keysFile,
+  //     ["keys", a.split(",")[0]],
+  //     a.split(",")[1]
+  //   );
+  // });
   let newFile = keysFile;
-  chunk.split(";").forEach((a) => {
-    newFile = addKeysToObject(
-      keysFile,
-      ["keys", a.split(",")[0]],
-      a.split(",")[1]
-    );
-  });
+  if (isNew) newFile = chunk;
+  else newFile = concatJSON([newFile, chunk]);
 
   addKeysToObject(newFile, ["hasChanges"], true);
   i.splitterData[sym].actualKeysFiles[keysFilePath] = newFile;
+
+  // saveKeysFile(sym, keysFilePath);
   return newFile;
 }

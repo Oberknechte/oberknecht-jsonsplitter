@@ -10,17 +10,21 @@ function checkSize(sym, file, object, size, objectSizeMultiplier) {
         return false;
     const fileBuffer = !file
         ? undefined
-        : Buffer.from(typeof file === "object" ? JSON.stringify(file) : file.toString(), "utf-8");
+        : typeof file === "number"
+            ? file
+            : Buffer.from(typeof file === "object" ? JSON.stringify(file) : file.toString(), "utf-8").byteLength;
     const objectBuffer = !object
         ? undefined
-        : Buffer.from(typeof object === "object" ? JSON.stringify(object) : object.toString(), "utf-8");
+        : typeof object === "number"
+            ? object
+            : Buffer.from(typeof object === "object" ? JSON.stringify(object) : object.toString(), "utf-8").byteLength;
     let maxSize = size ?? __1.i.splitterData[sym]._options?.maxFileSize ?? jsonsplitter_1.maxJSONSize;
     if (maxSize > jsonsplitter_1.maxJSONSize || maxSize <= 0)
         maxSize = jsonsplitter_1.maxJSONSize;
     if (!object && fileBuffer)
-        return fileBuffer.byteLength >= maxSize;
+        return fileBuffer >= maxSize;
     if (!file && objectBuffer)
-        return objectBuffer.byteLength * (objectSizeMultiplier ?? 1) >= maxSize;
-    return fileBuffer.byteLength + objectBuffer.byteLength >= maxSize;
+        return objectBuffer * (objectSizeMultiplier ?? 1) >= maxSize;
+    return fileBuffer + objectBuffer >= maxSize;
 }
 exports.checkSize = checkSize;

@@ -44,6 +44,8 @@ async function fileChange(sym, auto) {
             if (!keysFile.hasChanges)
                 return;
             delete keysFile.hasChanges;
+            if (keysFile.lastUsed)
+                delete keysFile.lastUsed;
             (0, _wf_1._wf)(sym, keysFilePath, keysFile);
             changed_files++;
         });
