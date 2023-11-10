@@ -131,21 +131,6 @@ export async function moveToKeysFiles(sym: string, mainFilePath: string) {
       )
       .at(-1)
   );
-  console.log(
-    "savekeysfile",
-    Object.keys(i.splitterData[sym].keysFiles)
-      .filter(
-        (a) => a.replace(/keys\/keys\d+\.json$/, "_main.json") === mainFilePath
-      )
-      .sort(
-        (a, b) =>
-          parseInt(
-            a.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, "")
-          ) -
-          parseInt(b.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, ""))
-      )
-      .at(-1)
-  );
 
   const moveEnd = Date.now();
 

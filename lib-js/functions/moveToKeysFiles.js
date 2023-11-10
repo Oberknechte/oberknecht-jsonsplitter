@@ -75,11 +75,6 @@ async function moveToKeysFiles(sym, mainFilePath) {
         .sort((a, b) => parseInt(a.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, "")) -
         parseInt(b.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, "")))
         .at(-1));
-    console.log("savekeysfile", Object.keys(__1.i.splitterData[sym].keysFiles)
-        .filter((a) => a.replace(/keys\/keys\d+\.json$/, "_main.json") === mainFilePath)
-        .sort((a, b) => parseInt(a.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, "")) -
-        parseInt(b.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, "")))
-        .at(-1));
     const moveEnd = Date.now();
     (0, oberknecht_utils_1.log)(1, "Moved keys of mainfile", mainFilePath, 
     // @ts-ignore

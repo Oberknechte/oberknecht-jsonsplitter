@@ -65,7 +65,8 @@ export function debugLog(sym: string, debugName: string, ...functionArgs: any) {
       sym,
       i.splitterData[sym]._options.debugsLogDir
     );
-    if (!fs.existsSync(debugsLogDir)) fs.mkdirSync(debugsLogDir);
+    if (!fs.existsSync(debugsLogDir))
+      fs.mkdirSync(debugsLogDir, { recursive: true });
     if (!fileName) fileName = `${sym}-${Date.now()}.log`;
     let filePath = path.resolve(debugsLogDir, fileName);
     let appendLogs_ = appendLogs.splice(0, appendLogs.length);

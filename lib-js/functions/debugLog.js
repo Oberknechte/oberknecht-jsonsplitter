@@ -47,7 +47,7 @@ function debugLog(sym, debugName, ...functionArgs) {
             return (appendLogTriggered = false);
         let debugsLogDir = (0, _mainpath_1._mainpath)(sym, __1.i.splitterData[sym]._options.debugsLogDir);
         if (!fs_1.default.existsSync(debugsLogDir))
-            fs_1.default.mkdirSync(debugsLogDir);
+            fs_1.default.mkdirSync(debugsLogDir, { recursive: true });
         if (!fileName)
             fileName = `${sym}-${Date.now()}.log`;
         let filePath = path_1.default.resolve(debugsLogDir, fileName);
