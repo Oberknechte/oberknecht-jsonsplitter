@@ -27,6 +27,7 @@ export type jsonsplitteroptions = {
   // "store_keys_in_master": Boolean() ?? true,
   debug?: number | 2;
   debugs?: jsonsplitterOptionsDebugsType[];
+  debugsLog?: jsonsplitterOptionsDebugsType[];
   debugsWithout?: jsonsplitterOptionsDebugsType[];
   debugsWithoutArgs?: boolean;
   debugsLogDir?: string;

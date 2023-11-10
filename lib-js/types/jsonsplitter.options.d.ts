@@ -4,6 +4,7 @@ export type jsonsplitteroptions = {
     child_folders_keys?: number | 1;
     debug?: number | 2;
     debugs?: jsonsplitterOptionsDebugsType[];
+    debugsLog?: jsonsplitterOptionsDebugsType[];
     debugsWithout?: jsonsplitterOptionsDebugsType[];
     debugsWithoutArgs?: boolean;
     debugsLogDir?: string;

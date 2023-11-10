@@ -143,7 +143,7 @@ export class jsonsplitter {
       i.splitterData[this.symbol].actions = [];
     i.splitterData[this.symbol].actions = i.splitterData[
       this.symbol
-    ].actions.slice(0, 9);
+    ].actions.slice(0, 50);
     i.splitterData[this.symbol].actions.push([Error(action), args]);
     this._options.actionCallback?.(action, args);
   };

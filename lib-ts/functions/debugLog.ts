@@ -27,7 +27,10 @@ export function debugLog(sym: string, debugName: string, ...functionArgs: any) {
 
   if (
     i.splitterData[sym]?._options?.debugsLogDir &&
-    !i.splitterData[sym]?._options?.debugLogs?.some(
+    (
+      i.splitterData[sym]?._options?.debugsLog ??
+      i.splitterData[sym]?._options?.debugs
+    )?.some(
       (a) =>
         [debugName, "all"].includes(a) &&
         !i.splitterData[sym]._options.debugsLogWithout?.includes(debugName)

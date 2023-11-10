@@ -19,7 +19,8 @@ function debugLog(sym, debugName, ...functionArgs) {
             ? functionArgs.filter((a) => a !== sym)
             : []));
     if (__1.i.splitterData[sym]?._options?.debugsLogDir &&
-        !__1.i.splitterData[sym]?._options?.debugLogs?.some((a) => [debugName, "all"].includes(a) &&
+        (__1.i.splitterData[sym]?._options?.debugsLog ??
+            __1.i.splitterData[sym]?._options?.debugs)?.some((a) => [debugName, "all"].includes(a) &&
             !__1.i.splitterData[sym]._options.debugsLogWithout?.includes(debugName))) {
         appendLogs.push([
             [

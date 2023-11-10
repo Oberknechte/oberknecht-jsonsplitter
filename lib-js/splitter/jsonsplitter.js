@@ -102,7 +102,7 @@ class jsonsplitter {
     addAction = (action, args) => {
         if (!__1.i.splitterData[this.symbol].actions)
             __1.i.splitterData[this.symbol].actions = [];
-        __1.i.splitterData[this.symbol].actions = __1.i.splitterData[this.symbol].actions.slice(0, 9);
+        __1.i.splitterData[this.symbol].actions = __1.i.splitterData[this.symbol].actions.slice(0, 50);
         __1.i.splitterData[this.symbol].actions.push([Error(action), args]);
         this._options.actionCallback?.(action, args);
     };
