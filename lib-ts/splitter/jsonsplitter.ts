@@ -644,7 +644,6 @@ export class jsonsplitter {
       objpath.keys[objpath.object_main.keynames.length],
       objpath.object_main.filenum
     );
-    console.log(Error(), objpath.path, objpath.path_main);
     let newfile = this.addKeysToObjectSync(file, keypath_, value);
     i.splitterData[this.symbol].actualFiles[filepath] = newfile;
     this.addHasChanges(objpath.path_main, filepath);
