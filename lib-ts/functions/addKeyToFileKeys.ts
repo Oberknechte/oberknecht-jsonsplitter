@@ -46,7 +46,6 @@ export function addKeyToFileKeys(
     isFirst = isNew = true;
   }
 
-
   let lastFileNum = parseInt(
     keysFilePath.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, "")
   );
@@ -54,8 +53,9 @@ export function addKeyToFileKeys(
     keysFile = i.splitterData[sym].keysFiles[keysFilePath]?.() ?? {};
 
   if (
-    (!isFirst && alwaysNew) ||
-    (!isFirst &&
+    !isFirst &&
+    !isNew &&
+    (alwaysNew ||
       checkSize(
         sym,
         keysFile,

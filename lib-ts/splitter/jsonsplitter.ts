@@ -382,18 +382,16 @@ export class jsonsplitter {
 
         let filenum_ = getKeyFromKeysFiles(this.symbol, keypath_, true);
         let keynamesmatch =
-          r.object_main()?.keynames.join("\u0001") ===
+          r.object_main()?.keynames?.join("\u0001") ===
           keypath_.slice(0, i + 1).join("\u0001");
 
         if (!isNullUndefined(filenum_.value) || keynamesmatch) {
-          if (!isNullUndefined(filenum_.value)) {
-            r.keyfound = true;
-            r.filenum = filenum_.value;
-          }
+          if (!isNullUndefined(filenum_.value)) r.filenum = filenum_.value;
+          r.keyfound = true;
           if (keynamesmatch) keynamesmatched = true;
         }
-        r.path = !filenum_.value
-          ? undefined
+        r.path = isNullUndefined(filenum_.value)
+          ? r.path_main.replace(_mainreg, `${r.object_main().filenum}.json`)
           : _mainpath(this.symbol, [
               `${keypath_
                 .slice(0, this._options.child_folders_keys)
@@ -453,6 +451,7 @@ export class jsonsplitter {
       objmain.filekeynum = 0;
       objmain.num = 0;
       objmain.keys = {};
+      objmain.keynames = obj.path;
       if (keychunks.length === 0)
         _wf(
           this_.symbol,
@@ -539,7 +538,9 @@ export class jsonsplitter {
         return undefined;
       }
 
-      if (!objpath.keyfound && objpath.keynamesmatched) return objpath.object;
+      if (!objpath.keyfound && objpath.keynamesmatched) {
+        return getKeysForMainFile(this.symbol, objpath.path_main);
+      }
       return this.getKeyFromObjectSync(objpath.object, keypath_);
     } else {
       if (!objpath.object_main) {
@@ -643,6 +644,7 @@ export class jsonsplitter {
       objpath.keys[objpath.object_main.keynames.length],
       objpath.object_main.filenum
     );
+    console.log(Error(), objpath.path, objpath.path_main);
     let newfile = this.addKeysToObjectSync(file, keypath_, value);
     i.splitterData[this.symbol].actualFiles[filepath] = newfile;
     this.addHasChanges(objpath.path_main, filepath);
@@ -1004,6 +1006,7 @@ export class jsonsplitter {
 
   recreateMainFiles = () => {
     Object.keys(this._mainFiles).forEach((mainFilePath) => {
+      if (this._mainFiles[mainFilePath].keysMoved) return;
       moveToKeysFiles(this.symbol, mainFilePath);
       if (this._options.debug > 3)
         log(
@@ -1012,7 +1015,7 @@ export class jsonsplitter {
         );
     });
 
-    this.save();
+    return this.save();
   };
 
   getMainKeysKeySync = (keypath: string | string[]) => {

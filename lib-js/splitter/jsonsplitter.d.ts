@@ -48,6 +48,6 @@ export declare class jsonsplitter {
     recreateAllSync: () => void;
     addKeyToFileKeys: (keypath: string[] | string, key: string, fileNum: number) => any;
     addHasChanges: (mainFilePath: string, hasChangesPath?: string) => void;
-    recreateMainFiles: () => void;
+    recreateMainFiles: () => Promise<void>;
     getMainKeysKeySync: (keypath: string | string[]) => any;
 }

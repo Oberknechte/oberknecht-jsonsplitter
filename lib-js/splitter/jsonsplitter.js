@@ -22,6 +22,7 @@ const getMainPaths_1 = require("../functions/getMainPaths");
 const checkSize_1 = require("../functions/checkSize");
 const getKeysPaths_1 = require("../functions/getKeysPaths");
 const getKeysFiles_1 = require("../functions/getKeysFiles");
+const getKeysForMainFile_1 = require("../functions/getKeysForMainFile");
 const moveToKeysFiles_1 = require("../functions/moveToKeysFiles");
 const getKeyFromKeysFiles_1 = require("../functions/getKeyFromKeysFiles");
 const addKeyToFileKeys_1 = require("../functions/addKeyToFileKeys");
@@ -276,18 +277,17 @@ class jsonsplitter {
                 r.dirpaths = Object.keys(this._paths).filter((a) => a.startsWith(r.dirpath));
                 r.filenum = r.object_main().filenum;
                 let filenum_ = (0, getKeyFromKeysFiles_1.getKeyFromKeysFiles)(this.symbol, keypath_, true);
-                let keynamesmatch = r.object_main()?.keynames.join("\u0001") ===
+                let keynamesmatch = r.object_main()?.keynames?.join("\u0001") ===
                     keypath_.slice(0, i + 1).join("\u0001");
                 if (!(0, oberknecht_utils_1.isNullUndefined)(filenum_.value) || keynamesmatch) {
-                    if (!(0, oberknecht_utils_1.isNullUndefined)(filenum_.value)) {
-                        r.keyfound = true;
+                    if (!(0, oberknecht_utils_1.isNullUndefined)(filenum_.value))
                         r.filenum = filenum_.value;
-                    }
+                    r.keyfound = true;
                     if (keynamesmatch)
                         keynamesmatched = true;
                 }
-                r.path = !filenum_.value
-                    ? undefined
+                r.path = (0, oberknecht_utils_1.isNullUndefined)(filenum_.value)
+                    ? r.path_main.replace(_mainreg, `${r.object_main().filenum}.json`)
                     : (0, _mainpath_1._mainpath)(this.symbol, [
                         `${keypath_
                             .slice(0, this._options.child_folders_keys)
@@ -342,6 +342,7 @@ class jsonsplitter {
             objmain.filekeynum = 0;
             objmain.num = 0;
             objmain.keys = {};
+            objmain.keynames = obj.path;
             if (keychunks.length === 0)
                 (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `0.json`]), this_.createObjectFromKeys(obj.path, {}));
             keychunks.forEach((keychunk, i) => {
@@ -399,8 +400,9 @@ class jsonsplitter {
                     this.emitError(err);
                 return undefined;
             }
-            if (!objpath.keyfound && objpath.keynamesmatched)
-                return objpath.object;
+            if (!objpath.keyfound && objpath.keynamesmatched) {
+                return (0, getKeysForMainFile_1.getKeysForMainFile)(this.symbol, objpath.path_main);
+            }
             return this.getKeyFromObjectSync(objpath.object, keypath_);
         }
         else {
@@ -458,6 +460,7 @@ class jsonsplitter {
             objpath.object_main.filekeynum++;
         }
         this.addKeyToFileKeys(keypath_, objpath.keys[objpath.object_main.keynames.length], objpath.object_main.filenum);
+        console.log(Error(), objpath.path, objpath.path_main);
         let newfile = this.addKeysToObjectSync(file, keypath_, value);
         __1.i.splitterData[this.symbol].actualFiles[filepath] = newfile;
         this.addHasChanges(objpath.path_main, filepath);
@@ -695,11 +698,13 @@ class jsonsplitter {
     };
     recreateMainFiles = () => {
         Object.keys(this._mainFiles).forEach((mainFilePath) => {
+            if (this._mainFiles[mainFilePath].keysMoved)
+                return;
             (0, moveToKeysFiles_1.moveToKeysFiles)(this.symbol, mainFilePath);
             if (this._options.debug > 3)
                 (0, oberknecht_utils_1.log)(1, `Recreated main file ${mainFilePath} jsonsplitter: ${this.symbol}`);
         });
-        this.save();
+        return this.save();
     };
     getMainKeysKeySync = (keypath) => {
         return (0, getKeyFromKeysFiles_1.getKeyFromKeysFiles)(this.symbol, keypath);

@@ -32,8 +32,9 @@ function addKeyToFileKeys(sym, mainFilePath, chunk, alwaysNew) {
     let lastFileNum = parseInt(keysFilePath.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, ""));
     if (!keysFile)
         keysFile = __1.i.splitterData[sym].keysFiles[keysFilePath]?.() ?? {};
-    if ((!isFirst && alwaysNew) ||
-        (!isFirst &&
+    if (!isFirst &&
+        !isNew &&
+        (alwaysNew ||
             (0, checkSize_1.checkSize)(sym, keysFile, chunk, __1.i.splitterData[sym]._options.maxKeysFileSize ?? jsonsplitter_1.defaultKeysFileSize))) {
         (0, saveKeysFile_1.saveKeysFile)(sym, keysFilePath);
         lastFileNum++;
