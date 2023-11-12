@@ -23,7 +23,8 @@ export async function fileChange(sym: string, auto?: boolean) {
       if (
         !mainFile_.keysMoved &&
         !mainFile_.hasChanges &&
-        !mainFile_.hasKeyChanges
+        !mainFile_.hasKeyChanges &&
+        !mainFile_.saveme
       )
         return;
       if (mainFile_.keysMoved) delete mainFile_.keys;
@@ -45,6 +46,7 @@ export async function fileChange(sym: string, auto?: boolean) {
 
       mainFile_.hasChanges = [];
       if (mainFile_.lastUsed) delete mainFile_.lastUsed;
+      if (mainFile_.saveme) delete mainFile_.saveme;
       _wf(sym, mainFilePath, mainFile_, "main");
     });
 

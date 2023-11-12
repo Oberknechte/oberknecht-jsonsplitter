@@ -1,4 +1,5 @@
 export const jsonsplitterOptionsDebugs = [
+  "all",
   "_cdir",
   "_mainpath",
   "_rf",
@@ -18,6 +19,7 @@ export const jsonsplitterOptionsDebugs = [
   "removeKeyFromKeysFile",
   "saveKeysFile",
 ] as const;
+
 export type jsonsplitterOptionsDebugsType = typeof jsonsplitterOptionsDebugs[number];
 
 export type jsonsplitteroptions = {

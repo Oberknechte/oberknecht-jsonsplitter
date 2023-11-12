@@ -21,7 +21,6 @@ export declare class jsonsplitter {
     onError: (callback: typeof onErrorCallback) => void;
     emit: (eventname: string | string[], args?: any) => void;
     emitError: (e: Error) => void;
-    create: (object: Record<string, any>) => Promise<unknown>;
     destroy: () => Promise<void>;
     save: () => Promise<void>;
     clearCache: (excludeMainFiles?: boolean) => void;

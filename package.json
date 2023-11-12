@@ -1,11 +1,12 @@
 {
   "name": "oberknecht-jsonsplitter",
-  "version": "2.0.9",
+  "version": "2.1.1",
   "description": "",
   "main": "export",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -r ./lib-js && tsc"
+    "build": "tsc",
+    "build2": "rm -r ./lib-js && tsc"
   },
   "repository": {
     "type": "git",

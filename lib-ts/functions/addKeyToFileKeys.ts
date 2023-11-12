@@ -46,6 +46,7 @@ export function addKeyToFileKeys(
     isFirst = isNew = true;
   }
 
+
   let lastFileNum = parseInt(
     keysFilePath.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, "")
   );

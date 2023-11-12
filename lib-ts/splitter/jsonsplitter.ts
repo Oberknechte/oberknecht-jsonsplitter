@@ -159,9 +159,9 @@ export class jsonsplitter {
     if (options.debug >= 0)
       _log(
         1,
-        `[JSONSPLITTER] Initialized \t${this.symbol} \tDirectory: ${
-          options.startpath
-        } (Took ${loadEnd - loadStart} ms)`
+        `[${this.symbol.toUpperCase()}] Initialized \t${
+          this.symbol
+        } \tDirectory: ${options.startpath} (Took ${loadEnd - loadStart} ms)`
       );
   }
 
@@ -189,67 +189,6 @@ export class jsonsplitter {
 
   emitError = (e: Error) => {
     return this.oberknechtEmitter.emitError("error", e);
-  };
-
-  create = (object: Record<string, any>) => {
-    return new Promise((resolve, reject) => {
-      let this_ = this;
-
-      let objdir = this.getDirPathsByObject(object);
-
-      function actualCreate(obj: Record<string, any>) {
-        _cdir(this_.symbol, _mainpath(this_.symbol, [...obj.path]));
-        let objmainpath = _mainpath(this_.symbol, [...obj.path, "_main.json"]);
-        let objmain: Record<string, any> = {};
-        let keychunks = chunkArray(
-          Object.keys(obj.object),
-          this_._options.max_keys_in_file
-        );
-        objmain.filenum = 0;
-        objmain.filekeynum = 0;
-        objmain.num = 0;
-        objmain.keys = {};
-        objmain.keynames = obj.path;
-        if (keychunks.length === 0)
-          _wf(
-            this_.symbol,
-            _mainpath(this_.symbol, [...obj.path, `0.json`]),
-            this_.createObjectFromKeys(obj.path, {})
-          );
-        keychunks.forEach((keychunk, i) => {
-          let keychunk_ = {};
-          objmain.num += keychunk.length;
-          objmain.filekeynum = keychunk.length;
-          objmain.filenum = i;
-          keychunk.forEach((a) => {
-            keychunk_[a] = obj.object[a];
-            objmain.keys[a] = i;
-          });
-
-          let chunkfile = this_.createObjectFromKeys(obj.path, keychunk_);
-          _wf(
-            this_.symbol,
-            _mainpath(this_.symbol, [...obj.path, `${i}.json`]),
-            chunkfile
-          );
-        });
-
-        _wf(this_.symbol, objmainpath, objmain);
-      }
-
-      function fromArr(a: any[]) {
-        if (!Array.isArray(a)) return actualCreate(a);
-
-        a.forEach((b) => {
-          if (Array.isArray(b)) return fromArr(b);
-          actualCreate(b);
-        });
-      }
-
-      fromArr(objdir);
-
-      return resolve(objdir);
-    });
   };
 
   destroy = async () => {
@@ -500,7 +439,6 @@ export class jsonsplitter {
 
   createSync = (object: Record<string, any>) => {
     let this_ = this;
-
     let objdir = this.getDirPathsByObject(object);
 
     function actualCreate(obj: Record<string, any>) {
@@ -514,7 +452,7 @@ export class jsonsplitter {
       objmain.filenum = 0;
       objmain.filekeynum = 0;
       objmain.num = 0;
-      objmain.keynames = obj.path;
+      objmain.keys = {};
       if (keychunks.length === 0)
         _wf(
           this_.symbol,

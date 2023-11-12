@@ -18,7 +18,8 @@ async function fileChange(sym, auto) {
             let mainFile_ = { ...mainFile };
             if (!mainFile_.keysMoved &&
                 !mainFile_.hasChanges &&
-                !mainFile_.hasKeyChanges)
+                !mainFile_.hasKeyChanges &&
+                !mainFile_.saveme)
                 return;
             if (mainFile_.keysMoved)
                 delete mainFile_.keys;
@@ -41,6 +42,8 @@ async function fileChange(sym, auto) {
             mainFile_.hasChanges = [];
             if (mainFile_.lastUsed)
                 delete mainFile_.lastUsed;
+            if (mainFile_.saveme)
+                delete mainFile_.saveme;
             (0, _wf_1._wf)(sym, mainFilePath, mainFile_, "main");
         });
         Object.keys(__1.i.splitterData[sym].actualKeysFiles).forEach((keysFilePath) => {
