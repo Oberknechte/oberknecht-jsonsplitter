@@ -19,12 +19,12 @@ export function getMainFiles(sym: string) {
         if (mainFileData.keys && !i.splitterData[sym]._options.noAutoMove) moveToKeysFiles(sym, mainFilePath);
 
         mainFileData.keysMoved = true;
-        mainFileData.keys = getKeysForMainFile(sym, mainFilePath);
-        // Object.defineProperty(mainFileData, "keys", {
-        //   get() {
-        //     return getKeysForMainFile(sym, mainFilePath);
-        //   },
-        // });
+        // mainFileData.keys = getKeysForMainFile(sym, mainFilePath);
+        Object.defineProperty(mainFileData, "keys", {
+          get() {
+            return getKeysForMainFile(sym, mainFilePath);
+          },
+        });
         i.splitterData[sym].actualMainFiles[mainFilePath] = mainFileData;
         return i.splitterData[sym].actualMainFiles[mainFilePath];
       }

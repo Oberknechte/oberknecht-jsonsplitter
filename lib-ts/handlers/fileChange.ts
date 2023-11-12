@@ -20,6 +20,12 @@ export async function fileChange(sym: string, auto?: boolean) {
     Object.keys(i.splitterData[sym].actualMainFiles).forEach((mainFilePath) => {
       let mainFile = i.splitterData[sym].actualMainFiles[mainFilePath];
       let mainFile_ = { ...mainFile };
+      if (
+        !mainFile_.keysMoved &&
+        !mainFile_.hasChanges &&
+        !mainFile_.hasKeyChanges
+      )
+        return;
       if (mainFile_.keysMoved) delete mainFile_.keys;
       if ((mainFile_.hasChanges ?? []).length === 0 && !mainFile_.hasKeyChanges)
         return _wf(sym, mainFilePath, mainFile_, "main");

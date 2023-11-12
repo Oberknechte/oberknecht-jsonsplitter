@@ -57,47 +57,59 @@ class jsonsplitter {
     }
     _options;
     loadTimes = [];
-    constructor(options) {
+    constructor(options_) {
         const loadStart = Date.now();
-        let options_ = (options ?? {});
-        options_.child_folders_keys = options_?.child_folders_keys ?? 1;
-        options_.max_keys_in_file = options_?.max_keys_in_file ?? 3000;
-        options_.startpath = options_?.startpath
-            ? options_.startpath.startsWith("/")
-                ? options_?.startpath
-                : (0, _mainpath_1._mainpath)(options_.startpath)
+        let options = (options_ ?? {});
+        options.child_folders_keys = options?.child_folders_keys ?? 1;
+        options.max_keys_in_file = options?.max_keys_in_file ?? 3000;
+        options.startpath = options?.startpath
+            ? options.startpath.startsWith("/")
+                ? options?.startpath
+                : (0, _mainpath_1._mainpath)(options.startpath)
             : (0, _mainpath_1._mainpath)("./data");
-        (0, _cdir_1._cdir)(this.symbol, options_.startpath);
-        options_.debug = options_.debug ?? 2;
-        options_.cacheSettings = options_.cacheSettings ?? {};
-        options_.cacheSettings.maxFileCacheAge =
-            options_.cacheSettings.maxFileCacheAge ?? 600000;
-        options_.cacheSettings.maxMainFileCacheAge =
-            options_.cacheSettings.maxMainFileCacheAge ?? 600000;
-        if (options_.debug >= 0)
-            (0, _log_1._log)(1, `[JSONSPLITTER] Initializing \t${this.symbol} \tDirectory: ${options_.startpath}`);
+        (0, _cdir_1._cdir)(this.symbol, options.startpath);
+        options.debug = options.debug ?? 2;
+        options.cacheSettings = options.cacheSettings ?? {};
+        options.cacheSettings.maxFileCacheAge =
+            options.cacheSettings.maxFileCacheAge ?? 600000;
+        options.cacheSettings.maxMainFileCacheAge =
+            options.cacheSettings.maxMainFileCacheAge ?? 600000;
+        if (options.debug >= 0)
+            (0, _log_1._log)(1, `[${this.symbol.toUpperCase()}] Initializing \t${this.symbol} \tDirectory: ${options.startpath}`);
         __1.i.splitterData[this.symbol] = {
             actualFiles: {},
             actualMainFiles: {},
             actualKeysFiles: {},
         };
-        this._options = __1.i.splitterData[this.symbol]._options = options_;
+        this._options = __1.i.splitterData[this.symbol]._options = options;
         __1.i.oberknechtEmitter[this.symbol] = this.oberknechtEmitter;
         // process.on("unhandledRejection", e => this.oberknechtEmitter.emitError("unhandledRejection", e));
         // process.on("uncaughtException", e => this.oberknechtEmitter.emitError("uncaughtException", e));
         (0, getMainFiles_1.getMainFiles)(this.symbol);
         (0, getFiles_1.getFiles)(this.symbol);
         (0, getKeysFiles_1.getKeysFiles)(this.symbol);
+        if (options.preloadKeysFiles) {
+            const preloadStart = Date.now();
+            if (options.debug >= 0)
+                (0, _log_1._log)(1, `[${this.symbol.toUpperCase()}] Preloading ${Object.keys(this._keysFiles).length} Keys Files`);
+            Object.keys(this._keysFiles).forEach((a) => {
+                this._keysFiles[a]();
+            });
+            if (options.debug >= 0)
+                (0, _log_1._log)(1, `[${this.symbol.toUpperCase()}] Preloaded ${Object.keys(this._keysFiles).length} Keys Files (Took ${(0, oberknecht_utils_1.cleanTime)(Date.now() - preloadStart, 4
+                // @ts-ignore
+                ).time.join(" and ")})`);
+        }
         __1.i.splitterData[this.symbol].filechangeInterval = setInterval(() => {
             (0, fileChange_1.fileChange)(this.symbol, true);
-        }, options_.filechange_interval ?? 15000);
-        if (!options_.cacheSettings.noAutoClearCacheSmart)
+        }, options.filechange_interval ?? 15000);
+        if (!options.cacheSettings.noAutoClearCacheSmart)
             __1.i.splitterData[this.symbol].clearCacheInterval = setInterval(() => {
                 (0, clearCacheSmart_1.clearCacheSmart)(this.symbol);
-            }, [options_.cacheSettings.autoClearInterval, options_.cacheSettings.maxFileCacheAge, options_.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
+            }, [options.cacheSettings.autoClearInterval, options.cacheSettings.maxFileCacheAge, options.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
         const loadEnd = Date.now();
-        if (options_.debug >= 0)
-            (0, _log_1._log)(1, `[JSONSPLITTER] Initialized \t\t${this.symbol} \tDirectory: ${options_.startpath} (Took ${loadEnd - loadStart} ms)`);
+        if (options.debug >= 0)
+            (0, _log_1._log)(1, `[JSONSPLITTER] Initialized \t${this.symbol} \tDirectory: ${options.startpath} (Took ${loadEnd - loadStart} ms)`);
     }
     addAction = (action, args) => {
         if (!__1.i.splitterData[this.symbol].actions)
@@ -297,7 +309,6 @@ class jsonsplitter {
         let lastI = 0;
         let keynamesmatched = false;
         const keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
-        let start = Date.now();
         for (let i = 0; i < keypath_.length; i++) {
             let dirpathkeys = this.getDirPathsByKeys(keypath_.slice(0, i + 1));
             let filteredkeypath = Object.keys(this._mainPaths).filter((b) => new RegExp(`^${dirpathkeys[0]}\/_main\.json$`).test(b));
@@ -307,20 +318,24 @@ class jsonsplitter {
                 r.dirpath = dirpathkeys[1];
                 r.dirpaths = Object.keys(this._paths).filter((a) => a.startsWith(r.dirpath));
                 r.filenum = r.object_main().filenum;
-                let filenum_ = this.getKeyFromObjectSync(r.object_main(), [
-                    "keys",
-                    keypath_[r.object_main().keynames.length],
-                ]);
+                let filenum_ = (0, getKeyFromKeysFiles_1.getKeyFromKeysFiles)(this.symbol, keypath_, true);
                 let keynamesmatch = r.object_main()?.keynames.join("\u0001") ===
                     keypath_.slice(0, i + 1).join("\u0001");
-                if (!(0, oberknecht_utils_1.isNullUndefined)(filenum_) || keynamesmatch) {
-                    if (!(0, oberknecht_utils_1.isNullUndefined)(filenum_))
-                        r.filenum = r.object_main().keys[keypath_[i + 1]];
-                    r.keyfound = true;
+                if (!(0, oberknecht_utils_1.isNullUndefined)(filenum_.value) || keynamesmatch) {
+                    if (!(0, oberknecht_utils_1.isNullUndefined)(filenum_.value)) {
+                        r.keyfound = true;
+                        r.filenum = filenum_.value;
+                    }
                     if (keynamesmatch)
                         keynamesmatched = true;
                 }
-                r.path = r.path_main.replace(_mainreg, `${r.filenum}.json`);
+                r.path = !filenum_.value
+                    ? undefined
+                    : (0, _mainpath_1._mainpath)(this.symbol, [
+                        `${keypath_
+                            .slice(0, this._options.child_folders_keys)
+                            .join("/")}/${filenum_.value}.json`,
+                    ]);
                 r.object = this._files[r.path];
                 i = keypath_.length;
             }
@@ -386,7 +401,8 @@ class jsonsplitter {
                 (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `${i}.json`]), chunkfile);
             });
             (0, _wf_1._wf)(this_.symbol, objmainpath, objmain);
-            this_.recreateMainFiles();
+            // this_.recreateMainFiles();
+            (0, moveToKeysFiles_1.moveToKeysFiles)(this_.symbol, objmainpath);
         }
         function fromArr(a) {
             if (!Array.isArray(a))
@@ -728,8 +744,8 @@ class jsonsplitter {
         });
         this.save();
     };
-    getMainKeysKeySync = (key) => {
-        return (0, getKeyFromKeysFiles_1.getKeyFromKeysFiles)(this.symbol, key);
+    getMainKeysKeySync = (keypath) => {
+        return (0, getKeyFromKeysFiles_1.getKeyFromKeysFiles)(this.symbol, keypath);
     };
 }
 exports.jsonsplitter = jsonsplitter;

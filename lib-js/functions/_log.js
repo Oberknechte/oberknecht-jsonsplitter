@@ -49,6 +49,9 @@ function _log(logopt, logmsg, logcolorfg, logcolorbg) {
             : logcolorbg ?? casecolors[logopt ?? 0]}m`;
     const logm = [
         `${logcolorbg}${logcolorfg} ${date_()} \x1b[0m >`,
+        ...(!/\[jsonsplitter-\d+\]/i.test(logmsg?.message ?? logmsg)
+            ? [`[jsonsplitter]`]
+            : []),
         logmsg?.message ?? logmsg,
     ];
     switch (logopt) {

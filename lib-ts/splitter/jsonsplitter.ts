@@ -3,6 +3,7 @@ import {
   addKeysToObject,
   arrayModifiers,
   chunkArray,
+  cleanTime,
   concatJSON,
   convertToArray,
   deleteKeyFromObject,
@@ -79,28 +80,30 @@ export class jsonsplitter {
   _options: jsonsplitteroptions;
   loadTimes = [];
 
-  constructor(options: jsonsplitteroptions) {
+  constructor(options_: jsonsplitteroptions) {
     const loadStart = Date.now();
-    let options_: jsonsplitteroptions = (options ?? {}) as jsonsplitteroptions;
-    options_.child_folders_keys = options_?.child_folders_keys ?? 1;
-    options_.max_keys_in_file = options_?.max_keys_in_file ?? 3000;
-    options_.startpath = options_?.startpath
-      ? options_.startpath.startsWith("/")
-        ? options_?.startpath
-        : _mainpath(options_.startpath)
+    let options: jsonsplitteroptions = (options_ ?? {}) as jsonsplitteroptions;
+    options.child_folders_keys = options?.child_folders_keys ?? 1;
+    options.max_keys_in_file = options?.max_keys_in_file ?? 3000;
+    options.startpath = options?.startpath
+      ? options.startpath.startsWith("/")
+        ? options?.startpath
+        : _mainpath(options.startpath)
       : _mainpath("./data");
-    _cdir(this.symbol, options_.startpath);
-    options_.debug = options_.debug ?? 2;
-    options_.cacheSettings = options_.cacheSettings ?? {};
-    options_.cacheSettings.maxFileCacheAge =
-      options_.cacheSettings.maxFileCacheAge ?? 600000;
-    options_.cacheSettings.maxMainFileCacheAge =
-      options_.cacheSettings.maxMainFileCacheAge ?? 600000;
+    _cdir(this.symbol, options.startpath);
+    options.debug = options.debug ?? 2;
+    options.cacheSettings = options.cacheSettings ?? {};
+    options.cacheSettings.maxFileCacheAge =
+      options.cacheSettings.maxFileCacheAge ?? 600000;
+    options.cacheSettings.maxMainFileCacheAge =
+      options.cacheSettings.maxMainFileCacheAge ?? 600000;
 
-    if (options_.debug >= 0)
+    if (options.debug >= 0)
       _log(
         1,
-        `[JSONSPLITTER] Initializing \t${this.symbol} \tDirectory: ${options_.startpath}`
+        `[${this.symbol.toUpperCase()}] Initializing \t${
+          this.symbol
+        } \tDirectory: ${options.startpath}`
       );
 
     i.splitterData[this.symbol] = {
@@ -109,7 +112,7 @@ export class jsonsplitter {
       actualKeysFiles: {},
     };
 
-    this._options = i.splitterData[this.symbol]._options = options_;
+    this._options = i.splitterData[this.symbol]._options = options;
 
     i.oberknechtEmitter[this.symbol] = this.oberknechtEmitter;
 
@@ -119,21 +122,45 @@ export class jsonsplitter {
     getMainFiles(this.symbol);
     getFiles(this.symbol);
     getKeysFiles(this.symbol);
+    if (options.preloadKeysFiles) {
+      const preloadStart = Date.now();
+      if (options.debug >= 0)
+        _log(
+          1,
+          `[${this.symbol.toUpperCase()}] Preloading ${
+            Object.keys(this._keysFiles).length
+          } Keys Files`
+        );
+      Object.keys(this._keysFiles).forEach((a) => {
+        this._keysFiles[a]();
+      });
+      if (options.debug >= 0)
+        _log(
+          1,
+          `[${this.symbol.toUpperCase()}] Preloaded ${
+            Object.keys(this._keysFiles).length
+          } Keys Files (Took ${cleanTime(
+            Date.now() - preloadStart,
+            4
+            // @ts-ignore
+          ).time.join(" and ")})`
+        );
+    }
 
     i.splitterData[this.symbol].filechangeInterval = setInterval(() => {
       fileChange(this.symbol, true);
-    }, options_.filechange_interval ?? 15000);
-    if (!options_.cacheSettings.noAutoClearCacheSmart)
+    }, options.filechange_interval ?? 15000);
+    if (!options.cacheSettings.noAutoClearCacheSmart)
       i.splitterData[this.symbol].clearCacheInterval = setInterval(() => {
         clearCacheSmart(this.symbol);
-      }, [options_.cacheSettings.autoClearInterval, options_.cacheSettings.maxFileCacheAge, options_.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
+      }, [options.cacheSettings.autoClearInterval, options.cacheSettings.maxFileCacheAge, options.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
 
     const loadEnd = Date.now();
-    if (options_.debug >= 0)
+    if (options.debug >= 0)
       _log(
         1,
-        `[JSONSPLITTER] Initialized \t\t${this.symbol} \tDirectory: ${
-          options_.startpath
+        `[JSONSPLITTER] Initialized \t${this.symbol} \tDirectory: ${
+          options.startpath
         } (Took ${loadEnd - loadStart} ms)`
       );
   }
@@ -399,8 +426,6 @@ export class jsonsplitter {
 
     const keypath_ = convertToArray(keypath);
 
-    let start = Date.now();
-
     for (let i = 0; i < keypath_.length; i++) {
       let dirpathkeys = this.getDirPathsByKeys(keypath_.slice(0, i + 1));
       let filteredkeypath = Object.keys(this._mainPaths).filter((b) =>
@@ -416,21 +441,25 @@ export class jsonsplitter {
         );
         r.filenum = r.object_main().filenum;
 
-        let filenum_ = this.getKeyFromObjectSync(r.object_main(), [
-          "keys",
-          keypath_[r.object_main().keynames.length],
-        ]);
+        let filenum_ = getKeyFromKeysFiles(this.symbol, keypath_, true);
         let keynamesmatch =
           r.object_main()?.keynames.join("\u0001") ===
           keypath_.slice(0, i + 1).join("\u0001");
 
-        if (!isNullUndefined(filenum_) || keynamesmatch) {
-          if (!isNullUndefined(filenum_))
-            r.filenum = r.object_main().keys[keypath_[i + 1]];
-          r.keyfound = true;
+        if (!isNullUndefined(filenum_.value) || keynamesmatch) {
+          if (!isNullUndefined(filenum_.value)) {
+            r.keyfound = true;
+            r.filenum = filenum_.value;
+          }
           if (keynamesmatch) keynamesmatched = true;
         }
-        r.path = r.path_main.replace(_mainreg, `${r.filenum}.json`);
+        r.path = !filenum_.value
+          ? undefined
+          : _mainpath(this.symbol, [
+              `${keypath_
+                .slice(0, this._options.child_folders_keys)
+                .join("/")}/${filenum_.value}.json`,
+            ]);
         r.object = this._files[r.path];
         i = keypath_.length;
       } else {
@@ -514,7 +543,8 @@ export class jsonsplitter {
       });
 
       _wf(this_.symbol, objmainpath, objmain);
-      this_.recreateMainFiles();
+      // this_.recreateMainFiles();
+      moveToKeysFiles(this_.symbol, objmainpath);
     }
 
     function fromArr(a: any[]) {
@@ -1038,13 +1068,16 @@ export class jsonsplitter {
     Object.keys(this._mainFiles).forEach((mainFilePath) => {
       moveToKeysFiles(this.symbol, mainFilePath);
       if (this._options.debug > 3)
-        log(1, `Recreated main file ${mainFilePath} jsonsplitter: ${this.symbol}`);
+        log(
+          1,
+          `Recreated main file ${mainFilePath} jsonsplitter: ${this.symbol}`
+        );
     });
 
     this.save();
   };
 
-  getMainKeysKeySync = (key: string) => {
-    return getKeyFromKeysFiles(this.symbol, key);
+  getMainKeysKeySync = (keypath: string | string[]) => {
+    return getKeyFromKeysFiles(this.symbol, keypath);
   };
 }

@@ -9,19 +9,21 @@ export function getKeysFiles(sym: string) {
 
   let keysFiles = {};
 
-  Object.keys(keysPaths).forEach((dir) => {
-    keysFiles[dir] = () => {
-      if (i.splitterData[sym]?.actualKeysFiles?.[dir])
-        return i.splitterData[sym].actualKeysFiles[dir];
+  Object.keys(keysPaths)
+    .filter((a) => !i.splitterData[sym]?.keysFile?.[a])
+    .forEach((dir) => {
+      keysFiles[dir] = () => {
+        if (i.splitterData[sym]?.actualKeysFiles?.[dir])
+          return i.splitterData[sym].actualKeysFiles[dir];
 
-      let file = _rf(sym, dir, true);
-      i.splitterData[sym].actualKeysFiles[dir] = {
-        ...file,
-        lastUsed: Date.now(),
+        let file = _rf(sym, dir, true);
+        i.splitterData[sym].actualKeysFiles[dir] = {
+          ...file,
+          lastUsed: Date.now(),
+        };
+        return file;
       };
-      return file;
-    };
-  });
+    });
 
   i.splitterData[sym].keysFiles = keysFiles;
 

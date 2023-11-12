@@ -9,7 +9,9 @@ function getKeysFiles(sym) {
     (0, debugLog_1.debugLog)(sym, "getKeysFiles", ...arguments);
     let keysPaths = (0, getKeysPaths_1.getKeysPaths)(sym);
     let keysFiles = {};
-    Object.keys(keysPaths).forEach((dir) => {
+    Object.keys(keysPaths)
+        .filter((a) => !__1.i.splitterData[sym]?.keysFile?.[a])
+        .forEach((dir) => {
         keysFiles[dir] = () => {
             if (__1.i.splitterData[sym]?.actualKeysFiles?.[dir])
                 return __1.i.splitterData[sym].actualKeysFiles[dir];

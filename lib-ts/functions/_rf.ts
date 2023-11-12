@@ -51,7 +51,7 @@ export function _rf(sym: string, rfpath: string, parse_json?: boolean) {
 
             return file_2;
           }
-
+          
           return file;
         } else {
           if (file.length === 0) _wf(sym, rfpath, {});

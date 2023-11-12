@@ -32,4 +32,5 @@ export type jsonsplitteroptions = {
     maxKeysFileSize?: number | 200000;
     actionCallback?: Function;
     moveToKeysFilesChunkSize?: number;
+    preloadKeysFiles?: boolean;
 };

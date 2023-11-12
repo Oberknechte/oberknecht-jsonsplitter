@@ -1,1 +1,1 @@
-export declare function removeKeyFromKeysFile(sym: string, key: string): void;
+export declare function removeKeyFromKeysFile(sym: string, keypath: string | string[]): void;

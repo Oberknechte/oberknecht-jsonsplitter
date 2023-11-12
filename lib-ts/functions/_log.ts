@@ -9,7 +9,12 @@ function date_() {
     .replace("T", " ");
 }
 
-export function _log(logopt: 0 | 1 | 2, logmsg: any, logcolorfg?: string, logcolorbg?: string) {
+export function _log(
+  logopt: 0 | 1 | 2,
+  logmsg: any,
+  logcolorfg?: string,
+  logcolorbg?: string
+) {
   const logcolors = {
     reset: "0",
     bright: "1",
@@ -55,6 +60,9 @@ export function _log(logopt: 0 | 1 | 2, logmsg: any, logcolorfg?: string, logcol
   }m`;
   const logm = [
     `${logcolorbg}${logcolorfg} ${date_()} \x1b[0m >`,
+    ...(!/\[jsonsplitter-\d+\]/i.test(logmsg?.message ?? logmsg)
+      ? [`[jsonsplitter]`]
+      : []),
     logmsg?.message ?? logmsg,
   ];
   switch (logopt) {

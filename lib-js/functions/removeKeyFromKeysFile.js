@@ -5,9 +5,11 @@ const oberknecht_utils_1 = require("oberknecht-utils");
 const getKeyFromKeysFiles_1 = require("./getKeyFromKeysFiles");
 const __1 = require("..");
 const debugLog_1 = require("./debugLog");
-function removeKeyFromKeysFile(sym, key) {
+function removeKeyFromKeysFile(sym, keypath) {
     (0, debugLog_1.debugLog)(sym, "removeKeyFromKeysFile", ...arguments);
-    let keyData = (0, getKeyFromKeysFiles_1.getKeyFromKeysFiles)(sym, key, true);
+    let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
+    let key = keypath_[__1.i.splitterData[sym]._options.child_folders_keys];
+    let keyData = (0, getKeyFromKeysFiles_1.getKeyFromKeysFiles)(sym, keypath, true);
     if (!keyData.keysFilePath)
         return;
     let keysFilePath = keyData.keysFilePath;

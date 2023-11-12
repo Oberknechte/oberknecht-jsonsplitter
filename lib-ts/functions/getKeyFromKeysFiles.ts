@@ -1,4 +1,8 @@
-import { getKeyFromObject, isNullUndefined } from "oberknecht-utils";
+import {
+  convertToArray,
+  getKeyFromObject,
+  isNullUndefined,
+} from "oberknecht-utils";
 import { i } from "..";
 import { debugLog } from "./debugLog";
 
@@ -13,12 +17,14 @@ type getKeyFromKeysFileReturn = number;
 
 export function getKeyFromKeysFiles<withKeysFilePathType extends Boolean>(
   sym: string,
-  key: string,
+  keypath: string | string[],
   withKeysFilePath?: withKeysFilePathType | undefined
 ) {
   debugLog(sym, "getKeyFromKeysFiles", ...arguments);
+  let keypath_ = convertToArray(keypath);
   let val;
   let keysFilePath;
+  let key = keypath_[i.splitterData[sym]._options.child_folders_keys];
 
   function searchFile(files: string[], n: number) {
     let keysFilePath_ = files[n];
@@ -33,7 +39,20 @@ export function getKeyFromKeysFiles<withKeysFilePathType extends Boolean>(
     searchFile(files, n + 1);
   }
 
-  searchFile(Object.keys(i.splitterData[sym].keysFiles), 0);
+  let searchKeysFiles = Object.keys(i.splitterData[sym].keysFiles).filter(
+    (a) =>
+      a
+        .replace(i.splitterData[sym]._options.startpath, "")
+        .replace(/^\//, "")
+        .split(/\/keys\/keys\d+\.json$/)[0]
+        .split("/")
+        .join("\u0001") ===
+      keypath_
+        .slice(0, i.splitterData[sym]._options.child_folders_keys)
+        .join("\u0001")
+  );
+
+  searchFile(searchKeysFiles, 0);
   return withKeysFilePath
     ? {
         value: val,
