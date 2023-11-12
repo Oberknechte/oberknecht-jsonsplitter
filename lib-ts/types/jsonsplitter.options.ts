@@ -31,7 +31,7 @@ export type jsonsplitteroptions = {
   debugsWithout?: jsonsplitterOptionsDebugsType[];
   debugsWithoutArgs?: boolean;
   debugsLogDir?: string;
-  debugsLogWithout: jsonsplitterOptionsDebugsType[];
+  debugsLogWithout?: jsonsplitterOptionsDebugsType[];
   debugsLogWithoutArgs?: boolean;
   debugsLogWithoutStack?: boolean;
   max_keys_in_file?: number | 3000;

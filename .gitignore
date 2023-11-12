@@ -3,6 +3,7 @@ logs/
 .tmp.*/
 config.json
 package-lock.json
+.vscode/
 
 # Logs
 logs
