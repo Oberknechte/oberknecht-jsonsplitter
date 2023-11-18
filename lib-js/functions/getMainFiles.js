@@ -4,7 +4,6 @@ exports.getMainFiles = void 0;
 const __1 = require("..");
 const _rf_1 = require("./_rf");
 const debugLog_1 = require("./debugLog");
-const getKeysForMainFile_1 = require("./getKeysForMainFile");
 const getMainPaths_1 = require("./getMainPaths");
 const moveToKeysFiles_1 = require("./moveToKeysFiles");
 function getMainFiles(sym) {
@@ -20,11 +19,11 @@ function getMainFiles(sym) {
                     (0, moveToKeysFiles_1.moveToKeysFiles)(sym, mainFilePath);
                 mainFileData.keysMoved = true;
                 // mainFileData.keys = getKeysForMainFile(sym, mainFilePath);
-                Object.defineProperty(mainFileData, "keys", {
-                    get() {
-                        return (0, getKeysForMainFile_1.getKeysForMainFile)(sym, mainFilePath);
-                    },
-                });
+                // Object.defineProperty(mainFileData, "keys", {
+                //   get() {
+                //     return getKeysForMainFile(sym, mainFilePath);
+                //   },
+                // });
                 __1.i.splitterData[sym].actualMainFiles[mainFilePath] = mainFileData;
                 return __1.i.splitterData[sym].actualMainFiles[mainFilePath];
             }

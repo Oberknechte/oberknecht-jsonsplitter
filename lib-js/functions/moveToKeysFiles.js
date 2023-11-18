@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.moveToKeysFiles = void 0;
+exports.moveToKeysFiles = exports.moveToKeysFilesSync = void 0;
 const __1 = require("..");
 const fs_1 = __importDefault(require("fs"));
 const parseKeysFilePath_1 = require("./parseKeysFilePath");
@@ -13,7 +13,8 @@ const oberknecht_utils_1 = require("oberknecht-utils");
 const debugLog_1 = require("./debugLog");
 const jsonsplitter_1 = require("../types/jsonsplitter");
 const saveKeysFile_1 = require("./saveKeysFile");
-async function moveToKeysFiles(sym, mainFilePath) {
+let movingFiles = {};
+async function moveToKeysFilesSync(sym, mainFilePath) {
     (0, debugLog_1.debugLog)(sym, "moveToKeysFiles", ...arguments);
     let mainFile = __1.i.splitterData[sym].mainFiles[mainFilePath]?.();
     const moveStart = Date.now();
@@ -80,5 +81,14 @@ async function moveToKeysFiles(sym, mainFilePath) {
     // @ts-ignore
     `(Took ${(0, oberknecht_utils_1.cleanTime)(moveEnd - moveStart, 4).time.join(" ")})`);
     return true;
+}
+exports.moveToKeysFilesSync = moveToKeysFilesSync;
+async function moveToKeysFiles(sym, mainFilePath) {
+    if ((0, oberknecht_utils_1.getKeyFromObject)(movingFiles, [sym, mainFilePath]))
+        return (0, oberknecht_utils_1.getKeyFromObject)(movingFiles, [sym, mainFilePath]);
+    let prom = new Promise((resolve, reject) => {
+        moveToKeysFilesSync(sym, mainFilePath).then(resolve).catch(reject);
+    });
+    (0, oberknecht_utils_1.addKeysToObject)(movingFiles, [sym, mainFilePath], prom);
 }
 exports.moveToKeysFiles = moveToKeysFiles;

@@ -12,7 +12,7 @@ function clearCacheSmart(sym, excludeMainFiles) {
     let clearedMainFiles = 0;
     Object.keys(__1.i.splitterData[sym].actualFiles).forEach((a) => {
         let b = __1.i.splitterData[sym].actualFiles[a];
-        if (b.lastUsed &&
+        if (b?.lastUsed &&
             b.lastUsed <=
                 Date.now() - __1.i.splitterData[sym]._options.cacheSettings.maxFileCacheAge) {
             clearedFiles++;

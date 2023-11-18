@@ -7,6 +7,7 @@ import {
   addKeysToObject,
   chunkArray,
   cleanTime,
+  getKeyFromObject,
   log,
   recreate,
 } from "oberknecht-utils";
@@ -18,8 +19,9 @@ import {
 } from "../types/jsonsplitter";
 import { _wf } from "./_wf";
 import { saveKeysFile } from "./saveKeysFile";
+let movingFiles: Record<string, Record<string, Promise<boolean>>> = {};
 
-export async function moveToKeysFiles(sym: string, mainFilePath: string) {
+export async function moveToKeysFilesSync(sym: string, mainFilePath: string) {
   debugLog(sym, "moveToKeysFiles", ...arguments);
 
   let mainFile = i.splitterData[sym].mainFiles[mainFilePath]?.();
@@ -143,4 +145,14 @@ export async function moveToKeysFiles(sym: string, mainFilePath: string) {
   );
 
   return true;
+}
+
+export async function moveToKeysFiles(sym: string, mainFilePath: string) {
+  if (getKeyFromObject(movingFiles, [sym, mainFilePath]))
+    return getKeyFromObject(movingFiles, [sym, mainFilePath]);
+
+  let prom = new Promise((resolve, reject) => {
+    moveToKeysFilesSync(sym, mainFilePath).then(resolve).catch(reject);
+  });
+  addKeysToObject(movingFiles, [sym, mainFilePath], prom);
 }
