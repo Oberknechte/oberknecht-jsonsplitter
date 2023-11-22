@@ -1,4 +1,9 @@
-import { addKeysToObject, convertToArray, deleteKeyFromObject } from "oberknecht-utils";
+import {
+  addKeysToObject,
+  convertToArray,
+  deleteKeyFromObject,
+  getKeyFromObject,
+} from "oberknecht-utils";
 import { getKeyFromKeysFiles } from "./getKeyFromKeysFiles";
 import { i } from "..";
 import { debugLog } from "./debugLog";
@@ -12,6 +17,7 @@ export function removeKeyFromKeysFile(sym: string, keypath: string | string[]) {
   let keysFilePath = keyData.keysFilePath;
   let keysFile = i.splitterData[sym].actualKeysFile;
 
+  if (!getKeyFromObject(keysFile, ["keys", key])) return;
   let newFile = deleteKeyFromObject(keysFile, ["keys", key]);
   addKeysToObject(newFile, ["hasChanges"], true);
   i.splitterData[sym].actualKeysFiles[keysFilePath] = newFile;
