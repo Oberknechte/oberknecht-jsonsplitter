@@ -14,7 +14,7 @@ function removeKeyFromKeysFile(sym, keypath) {
         return;
     let keysFilePath = keyData.keysFilePath;
     let keysFile = __1.i.splitterData[sym].actualKeysFile;
-    if (!(0, oberknecht_utils_1.getKeyFromObject)(keysFile, ["keys", key]))
+    if (!keysFile || !(0, oberknecht_utils_1.getKeyFromObject)(keysFile, ["keys", key]))
         return;
     let newFile = (0, oberknecht_utils_1.deleteKeyFromObject)(keysFile, ["keys", key]);
     (0, oberknecht_utils_1.addKeysToObject)(newFile, ["hasChanges"], true);

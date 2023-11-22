@@ -17,7 +17,7 @@ export function removeKeyFromKeysFile(sym: string, keypath: string | string[]) {
   let keysFilePath = keyData.keysFilePath;
   let keysFile = i.splitterData[sym].actualKeysFile;
 
-  if (!getKeyFromObject(keysFile, ["keys", key])) return;
+  if (!keysFile || !getKeyFromObject(keysFile, ["keys", key])) return;
   let newFile = deleteKeyFromObject(keysFile, ["keys", key]);
   addKeysToObject(newFile, ["hasChanges"], true);
   i.splitterData[sym].actualKeysFiles[keysFilePath] = newFile;
