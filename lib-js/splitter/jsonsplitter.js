@@ -408,7 +408,13 @@ class jsonsplitter {
             if (!objpath.keyfound && objpath.keynamesmatched) {
                 return (0, getKeysForMainFile_1.getKeysForMainFile)(this.symbol, objpath.path_main);
             }
-            return this.getKeyFromObjectSync(objpath.object, keypath_);
+            let value = this.getKeyFromObjectSync(objpath.object, keypath_);
+            this.oberknechtEmitter.emit(["getKeySync"], {
+                keyPath: keypath_,
+                objpath: objpath,
+                value: value,
+            });
+            return value;
         }
         else {
             if (!objpath.object_main) {
@@ -494,6 +500,11 @@ class jsonsplitter {
             }
             else {
                 newfile = this.addKeysToObjectSync(objpath.object, keypath_, value);
+                this.oberknechtEmitter.emit(["editKeySync", "_change"], {
+                    keyPath: keypath_,
+                    objpath: objpath,
+                    value: value,
+                });
             }
             this.addHasChanges(objpath.path_main, filePath);
             if (!noAppendNewFile) {
@@ -525,6 +536,11 @@ class jsonsplitter {
             }
             else {
                 newfile = this.addAppendKeysToObjectSync(objpath.object, keypath_, value);
+                this.oberknechtEmitter.emit(["editKeyAddSync", "_change"], {
+                    keyPath: keypath_,
+                    objpath: objpath,
+                    value: value,
+                });
             }
             this.addHasChanges(objpath.path_main, filepath);
         }
@@ -550,6 +566,10 @@ class jsonsplitter {
             (objpath.object_main?.keynames?.length ??
                 this._options?.child_folders_keys)) {
             let newfile = this.deleteKeyFromObjectSync(file, keypath_, emiterr);
+            this.oberknechtEmitter.emit(["deleteKeySync", "_change"], {
+                keyPath: keypath_,
+                objpath: objpath,
+            });
             this.addHasChanges(objpath.path_main, filepath);
             if (keypath_.length === objpath.object_main.keynames.length + 1) {
                 let mainfile = objpath.object_main;
