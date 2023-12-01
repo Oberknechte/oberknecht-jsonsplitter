@@ -54,7 +54,7 @@ export class jsonsplitter {
     return this.#symbol;
   }
 
-  oberknechtEmitter = new oberknechtEmitter();
+  oberknechtEmitter: oberknechtEmitter = new oberknechtEmitter();
 
   get _mainPaths() {
     return i.splitterData[this.symbol]?.mainPaths ?? getMainPaths(this.symbol);
@@ -112,6 +112,8 @@ export class jsonsplitter {
       actualMainFiles: {},
       actualKeysFiles: {},
     };
+
+    this.oberknechtEmitter._options = options.emitterOptions;
 
     this._options = i.splitterData[this.symbol]._options = options;
 

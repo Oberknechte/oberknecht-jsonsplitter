@@ -83,6 +83,7 @@ class jsonsplitter {
             actualMainFiles: {},
             actualKeysFiles: {},
         };
+        this.oberknechtEmitter._options = options.emitterOptions;
         this._options = __1.i.splitterData[this.symbol]._options = options;
         __1.i.oberknechtEmitter[this.symbol] = this.oberknechtEmitter;
         // process.on("unhandledRejection", e => this.oberknechtEmitter.emitError("unhandledRejection", e));

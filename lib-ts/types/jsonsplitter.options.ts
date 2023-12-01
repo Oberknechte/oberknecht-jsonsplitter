@@ -1,3 +1,5 @@
+import { oberknechtEmitterOptions } from "oberknecht-emitters/lib-ts/types/oberknecht.emitter.options";
+
 export const jsonsplitterOptionsDebugs = [
   "all",
   "_cdir",
@@ -59,4 +61,5 @@ export type jsonsplitteroptions = {
   actionCallback?: Function;
   moveToKeysFilesChunkSize?: number;
   preloadKeysFiles?: boolean;
+  emitterOptions?: oberknechtEmitterOptions
 };

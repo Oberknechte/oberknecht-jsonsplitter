@@ -1,3 +1,4 @@
+import { oberknechtEmitterOptions } from "oberknecht-emitters/lib-ts/types/oberknecht.emitter.options";
 export declare const jsonsplitterOptionsDebugs: readonly ["all", "_cdir", "_mainpath", "_rf", "_wf", "addKeyToFileKeys", "checkSize", "clearCache", "clearCacheSmart", "getFiles", "getKeyFromKeysFiles", "getKeysFiles", "getKeysForMainFile", "getKeysPaths", "getMainFiles", "getMainPaths", "moveToKeysFiles", "removeKeyFromKeysFile", "saveKeysFile"];
 export type jsonsplitterOptionsDebugsType = typeof jsonsplitterOptionsDebugs[number];
 export type jsonsplitteroptions = {
@@ -33,4 +34,5 @@ export type jsonsplitteroptions = {
     actionCallback?: Function;
     moveToKeysFilesChunkSize?: number;
     preloadKeysFiles?: boolean;
+    emitterOptions?: oberknechtEmitterOptions;
 };
