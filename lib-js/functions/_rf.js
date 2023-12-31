@@ -54,7 +54,7 @@ function _rf(sym, rfpath, parse_json) {
                 }
                 else {
                     if (file.length === 0)
-                        (0, _wf_1._wf)(sym, rfpath, {});
+                        (0, _wf_1._wf)(sym, rfpath_, {});
                     return {};
                 }
             }

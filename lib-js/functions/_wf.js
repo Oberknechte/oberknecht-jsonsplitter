@@ -4,12 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports._wf = void 0;
-const correctpath_1 = require("./correctpath");
 const _rf_1 = require("./_rf");
 const _mainpath_1 = require("./_mainpath");
 const fs_1 = __importDefault(require("fs"));
 const __1 = require("..");
 const debugLog_1 = require("./debugLog");
+const uncorrectPath_1 = require("./uncorrectPath");
 function _wf(sym, wfpath, wffile, fileType) {
     (0, debugLog_1.debugLog)(sym, "_wf", ...arguments);
     if (!wfpath)
@@ -18,7 +18,7 @@ function _wf(sym, wfpath, wffile, fileType) {
         return new Error(`_wf: wffile is undefined`);
     if (!wfpath.startsWith((0, _mainpath_1._mainpath)(sym)))
         wfpath = (0, _mainpath_1._mainpath)(sym, wfpath);
-    wfpath = (0, correctpath_1.correctpath)(wfpath);
+    let wfpath_ = (0, uncorrectPath_1.uncorrectpath)(wfpath);
     if (sym &&
         wfpath.endsWith("_main.json") &&
         (!fileType || fileType === "main")) {
@@ -28,7 +28,7 @@ function _wf(sym, wfpath, wffile, fileType) {
         if (!__1.i.splitterData[sym].mainFiles[wfpath]) {
             __1.i.splitterData[sym].mainFiles[wfpath] = () => {
                 if (!__1.i.splitterData[sym].actualMainFiles[wfpath]) {
-                    let file = (0, _rf_1._rf)(sym, wfpath, true);
+                    let file = (0, _rf_1._rf)(sym, wfpath_, true);
                     let file_ = { ...file, lastUsed: Date.now() };
                     __1.i.splitterData[sym].actualMainFiles[wfpath] = file_;
                     return file_;
@@ -45,7 +45,7 @@ function _wf(sym, wfpath, wffile, fileType) {
             if (!__1.i.splitterData[sym].files[wfpath]) {
                 __1.i.splitterData[sym].files[wfpath] = () => {
                     if (!__1.i.splitterData[sym].actualFiles[wfpath]) {
-                        let file = (0, _rf_1._rf)(sym, wfpath, true);
+                        let file = (0, _rf_1._rf)(sym, wfpath_, true);
                         let file_ = { ...file, lastUsed: Date.now() };
                         __1.i.splitterData[sym].actualFiles[wfpath] = file_;
                         return file_;
@@ -56,21 +56,22 @@ function _wf(sym, wfpath, wffile, fileType) {
         }
     }
     let wfpathdir = wfpath.split("/").slice(0, -1).join("/");
-    if (!fs_1.default.existsSync(wfpathdir))
-        fs_1.default.mkdirSync(wfpathdir, {
+    let wfpathdir_ = (0, uncorrectPath_1.uncorrectpath)(wfpathdir);
+    if (!fs_1.default.existsSync(wfpathdir_))
+        fs_1.default.mkdirSync(wfpathdir_, {
             recursive: true,
         });
     try {
         switch (typeof wffile) {
             case "string": {
-                fs_1.default.writeFileSync(wfpath, wffile, "utf-8");
+                fs_1.default.writeFileSync(wfpath_, wffile, "utf-8");
                 break;
             }
             case "object": {
                 let file_ = { ...wffile };
                 if (file_.lastUsed)
                     file_.lastUsed;
-                fs_1.default.writeFileSync(wfpath, JSON.stringify(file_), "utf-8");
+                fs_1.default.writeFileSync(wfpath_, JSON.stringify(file_), "utf-8");
                 break;
             }
             default: {

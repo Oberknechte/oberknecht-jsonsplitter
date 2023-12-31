@@ -4,6 +4,7 @@ import fs from "fs";
 import { _mainpath } from "./_mainpath";
 import { correctpath } from "./correctpath";
 import { debugLog } from "./debugLog";
+import { uncorrectpath } from "./uncorrectPath";
 
 export function getPaths(sym: string) {
   debugLog(sym, "getPaths", ...arguments);
@@ -14,8 +15,9 @@ export function getPaths(sym: string) {
     dir
       .filter((a) => a.isFile() && a.name !== "_main.json")
       .forEach((path_) => {
-        paths[correctpath(path.resolve(dirpath, path_.name))] = path
-          .resolve(dirpath, path_.name)
+        paths[correctpath(path.resolve(dirpath, path_.name))] = correctpath(
+          path.resolve(dirpath, path_.name)
+        )
           .replace(_mainpath(sym), "")
           .replace(/^\/|\/$/g, "");
       });

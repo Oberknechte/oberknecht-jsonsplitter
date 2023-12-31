@@ -42,7 +42,7 @@ class jsonsplitter {
     get _mainFiles() {
         return __1.i.splitterData[this.symbol]?.mainFiles ?? (0, getMainFiles_1.getMainFiles)(this.symbol);
     }
-    get _keyspaths() {
+    get _keysPaths() {
         return __1.i.splitterData[this.symbol]?.keysPaths ?? (0, getKeysPaths_1.getKeysPaths)(this.symbol);
     }
     get _keysFiles() {

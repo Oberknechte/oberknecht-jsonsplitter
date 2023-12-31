@@ -4,18 +4,20 @@ import fs from "fs";
 import { _mainpath } from "./_mainpath";
 import { correctpath } from "./correctpath";
 import { debugLog } from "./debugLog";
+import { uncorrectpath } from "./uncorrectPath";
 
 export function getMainPaths(sym: string) {
   debugLog(sym, "getMainPaths", ...arguments);
   let mainPaths = {};
-  
+
   function rd(dirpath: string) {
     let dir = fs.readdirSync(dirpath, { withFileTypes: true });
 
     let mains = dir.filter((a) => a.name === "_main.json");
     if (mains.length > 0)
-      mainPaths[correctpath(path.resolve(dirpath, mains[0].name))] = path
-        .resolve(dirpath, mains[0].name)
+      mainPaths[
+        correctpath(path.resolve(dirpath, mains[0].name))
+      ] = correctpath(path.resolve(dirpath, mains[0].name))
         .replace(_mainpath(sym), "")
         .replace(/^\/|\/$/g, "");
     dir

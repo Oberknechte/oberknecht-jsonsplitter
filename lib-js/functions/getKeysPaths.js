@@ -16,10 +16,9 @@ function getKeysPaths(sym) {
     function rd(dirpath) {
         let dir = fs_1.default.readdirSync(dirpath, { withFileTypes: true });
         let keys = dir.filter((a) => /^keys\d+\.json$/.test(a.name));
-        if (/\/keys$/.test(dirpath) && keys.length > 0)
+        if (/\/keys$/.test((0, correctpath_1.correctpath)(dirpath)) && keys.length > 0)
             keys.forEach((key) => {
-                keysPaths[(0, correctpath_1.correctpath)(path_1.default.resolve(dirpath, key.name))] = path_1.default
-                    .resolve(dirpath, key.name)
+                keysPaths[(0, correctpath_1.correctpath)(path_1.default.resolve(dirpath, key.name))] = (0, correctpath_1.correctpath)(path_1.default.resolve(dirpath, key.name))
                     .replace((0, _mainpath_1._mainpath)(sym), "")
                     .replace(/^\/|\/$/g, "");
             });

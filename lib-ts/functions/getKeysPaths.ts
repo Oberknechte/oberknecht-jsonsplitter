@@ -4,6 +4,7 @@ import fs from "fs";
 import { _mainpath } from "./_mainpath";
 import { correctpath } from "./correctpath";
 import { debugLog } from "./debugLog";
+import { uncorrectpath } from "./uncorrectPath";
 
 export function getKeysPaths(sym: string) {
   debugLog(sym, "getKeysPaths", ...arguments);
@@ -13,10 +14,11 @@ export function getKeysPaths(sym: string) {
     let dir = fs.readdirSync(dirpath, { withFileTypes: true });
 
     let keys = dir.filter((a) => /^keys\d+\.json$/.test(a.name));
-    if (/\/keys$/.test(dirpath) && keys.length > 0)
+    if (/\/keys$/.test(correctpath(dirpath)) && keys.length > 0)
       keys.forEach((key) => {
-        keysPaths[correctpath(path.resolve(dirpath, key.name))] = path
-          .resolve(dirpath, key.name)
+        keysPaths[correctpath(path.resolve(dirpath, key.name))] = correctpath(
+          path.resolve(dirpath, key.name)
+        )
           .replace(_mainpath(sym), "")
           .replace(/^\/|\/$/g, "");
       });

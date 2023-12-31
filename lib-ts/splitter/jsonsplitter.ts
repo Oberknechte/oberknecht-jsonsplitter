@@ -62,7 +62,7 @@ export class jsonsplitter {
   get _mainFiles() {
     return i.splitterData[this.symbol]?.mainFiles ?? getMainFiles(this.symbol);
   }
-  get _keyspaths() {
+  get _keysPaths() {
     return i.splitterData[this.symbol]?.keysPaths ?? getKeysPaths(this.symbol);
   }
   get _keysFiles() {

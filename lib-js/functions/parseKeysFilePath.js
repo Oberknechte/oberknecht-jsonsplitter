@@ -6,7 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseKeysFilePath = void 0;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const path_1 = __importDefault(require("path"));
+const correctpath_1 = require("./correctpath");
 function parseKeysFilePath(mainFilePath, pathParts) {
-    return path_1.default.resolve(mainFilePath.replace(/\/_main\.json$/, ""), "./keys", ...(0, oberknecht_utils_1.convertToArray)(pathParts, false));
+    return (0, correctpath_1.correctpath)(path_1.default.resolve(mainFilePath.replace(/\/_main\.json$/, ""), "./keys", ...(0, oberknecht_utils_1.convertToArray)(pathParts, false)));
 }
 exports.parseKeysFilePath = parseKeysFilePath;

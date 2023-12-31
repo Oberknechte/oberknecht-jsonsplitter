@@ -8,7 +8,7 @@ export declare class jsonsplitter {
     oberknechtEmitter: oberknechtEmitter;
     get _mainPaths(): any;
     get _mainFiles(): any;
-    get _keyspaths(): any;
+    get _keysPaths(): any;
     get _keysFiles(): any;
     get _paths(): any;
     get _files(): any;

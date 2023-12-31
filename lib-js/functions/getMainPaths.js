@@ -17,8 +17,7 @@ function getMainPaths(sym) {
         let dir = fs_1.default.readdirSync(dirpath, { withFileTypes: true });
         let mains = dir.filter((a) => a.name === "_main.json");
         if (mains.length > 0)
-            mainPaths[(0, correctpath_1.correctpath)(path_1.default.resolve(dirpath, mains[0].name))] = path_1.default
-                .resolve(dirpath, mains[0].name)
+            mainPaths[(0, correctpath_1.correctpath)(path_1.default.resolve(dirpath, mains[0].name))] = (0, correctpath_1.correctpath)(path_1.default.resolve(dirpath, mains[0].name))
                 .replace((0, _mainpath_1._mainpath)(sym), "")
                 .replace(/^\/|\/$/g, "");
         dir

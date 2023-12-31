@@ -18,8 +18,7 @@ function getPaths(sym) {
         dir
             .filter((a) => a.isFile() && a.name !== "_main.json")
             .forEach((path_) => {
-            paths[(0, correctpath_1.correctpath)(path_1.default.resolve(dirpath, path_.name))] = path_1.default
-                .resolve(dirpath, path_.name)
+            paths[(0, correctpath_1.correctpath)(path_1.default.resolve(dirpath, path_.name))] = (0, correctpath_1.correctpath)(path_1.default.resolve(dirpath, path_.name))
                 .replace((0, _mainpath_1._mainpath)(sym), "")
                 .replace(/^\/|\/$/g, "");
         });
