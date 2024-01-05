@@ -13,6 +13,7 @@ import {
   recreate,
   regexEscape,
 } from "oberknecht-utils";
+import childProcess from "child_process";
 import { _mainpath } from "../functions/_mainpath";
 import { _cdir } from "../functions/_cdir";
 import { _wf } from "../functions/_wf";
@@ -42,6 +43,7 @@ import { moveToKeysFiles } from "../functions/moveToKeysFiles";
 import { getKeyFromKeysFiles } from "../functions/getKeyFromKeysFiles";
 import { addKeyToFileKeys } from "../functions/addKeyToFileKeys";
 import { removeKeyFromKeysFile } from "../functions/removeKeyFromKeysFile";
+import { createBackup } from "../functions/createBackup";
 
 const slashreg = /^\/|\/$/g;
 const _mainreg = /_main\.json$/;
@@ -98,6 +100,34 @@ export class jsonsplitter {
       options.cacheSettings.maxFileCacheAge ?? 600000;
     options.cacheSettings.maxMainFileCacheAge =
       options.cacheSettings.maxMainFileCacheAge ?? 600000;
+    options.backupPath = _mainpath(this.symbol, [
+      options.backupPath ?? options.startpath + "-backups",
+    ]);
+
+    switch (options.backupInterval) {
+      case "hourly": {
+        options.backupInterval = 60 * 60 * 1000;
+        break;
+      }
+
+      case "daily": {
+        options.backupInterval = 24 * 60 * 60 * 1000;
+        break;
+      }
+
+      case "weekly": {
+        options.backupInterval = 7 * 24 * 60 * 60 * 1000;
+        break;
+      }
+
+      default: {
+        if (typeof options.backupInterval === "number") {
+          options.backupInterval = options.backupInterval;
+        } else {
+          options.backupInterval = 7 * 24 * 60 * 60 * 1000;
+        }
+      }
+    }
 
     if (options.debug >= 0)
       _log(
@@ -158,6 +188,12 @@ export class jsonsplitter {
         clearCacheSmart(this.symbol);
       }, [options.cacheSettings.autoClearInterval, options.cacheSettings.maxFileCacheAge, options.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
 
+    if (options.backupEnabled) {
+      i.splitterData[this.symbol].backupInterval = setInterval(() => {
+        createBackup(this.symbol);
+      }, options.backupInterval);
+    }
+
     const loadEnd = Date.now();
     if (options.debug >= 0)
       _log(
@@ -166,6 +202,18 @@ export class jsonsplitter {
           this.symbol
         } \tDirectory: ${options.startpath} (Took ${loadEnd - loadStart} ms)`
       );
+
+    try {
+      childProcess.execSync("zip -v");
+    } catch (e) {
+      _log(
+        2,
+        Error(
+          "Could not find command zip - if you're using the backupZip option make sure to install it using\n\t\tsudo apt install zip\n\t\t" +
+            "and restart this process. Until then, jsonsplitter will create normal unzipped backups."
+        )
+      );
+    }
   }
 
   addAction = (action: string, args?: any[]) => {
@@ -507,6 +555,10 @@ export class jsonsplitter {
   create = (object: Record<string, any>): Promise<void> => {
     this.createSync(object);
     return this.recreateMainFiles();
+  };
+
+  createBackup = () => {
+    return createBackup(this.symbol);
   };
 
   getMainKeySync = (
@@ -1003,11 +1055,6 @@ export class jsonsplitter {
       addKeysToObject({}, ["keys", key], fileNum),
       false
     );
-    // return addKeyToFileKeys(
-    //   this.symbol,
-    //   objpath.path_main,
-    //   `${key},${fileNum}`
-    // );
   };
 
   addHasChanges = (mainFilePath: string, hasChangesPath?: string) => {

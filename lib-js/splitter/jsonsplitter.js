@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.jsonsplitter = void 0;
 const oberknecht_emitters_1 = require("oberknecht-emitters");
 const oberknecht_utils_1 = require("oberknecht-utils");
+const child_process_1 = __importDefault(require("child_process"));
 const _mainpath_1 = require("../functions/_mainpath");
 const _cdir_1 = require("../functions/_cdir");
 const _wf_1 = require("../functions/_wf");
@@ -27,6 +28,7 @@ const moveToKeysFiles_1 = require("../functions/moveToKeysFiles");
 const getKeyFromKeysFiles_1 = require("../functions/getKeyFromKeysFiles");
 const addKeyToFileKeys_1 = require("../functions/addKeyToFileKeys");
 const removeKeyFromKeysFile_1 = require("../functions/removeKeyFromKeysFile");
+const createBackup_1 = require("../functions/createBackup");
 const slashreg = /^\/|\/$/g;
 const _mainreg = /_main\.json$/;
 let clientSymNum = 0;
@@ -76,6 +78,31 @@ class jsonsplitter {
             options.cacheSettings.maxFileCacheAge ?? 600000;
         options.cacheSettings.maxMainFileCacheAge =
             options.cacheSettings.maxMainFileCacheAge ?? 600000;
+        options.backupPath = (0, _mainpath_1._mainpath)(this.symbol, [
+            options.backupPath ?? options.startpath + "-backups",
+        ]);
+        switch (options.backupInterval) {
+            case "hourly": {
+                options.backupInterval = 60 * 60 * 1000;
+                break;
+            }
+            case "daily": {
+                options.backupInterval = 24 * 60 * 60 * 1000;
+                break;
+            }
+            case "weekly": {
+                options.backupInterval = 7 * 24 * 60 * 60 * 1000;
+                break;
+            }
+            default: {
+                if (typeof options.backupInterval === "number") {
+                    options.backupInterval = options.backupInterval;
+                }
+                else {
+                    options.backupInterval = 7 * 24 * 60 * 60 * 1000;
+                }
+            }
+        }
         if (options.debug >= 0)
             (0, _log_1._log)(1, `[${this.symbol.toUpperCase()}] Initializing \t${this.symbol} \tDirectory: ${options.startpath}`);
         __1.i.splitterData[this.symbol] = {
@@ -110,9 +137,21 @@ class jsonsplitter {
             __1.i.splitterData[this.symbol].clearCacheInterval = setInterval(() => {
                 (0, clearCacheSmart_1.clearCacheSmart)(this.symbol);
             }, [options.cacheSettings.autoClearInterval, options.cacheSettings.maxFileCacheAge, options.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
+        if (options.backupEnabled) {
+            __1.i.splitterData[this.symbol].backupInterval = setInterval(() => {
+                (0, createBackup_1.createBackup)(this.symbol);
+            }, options.backupInterval);
+        }
         const loadEnd = Date.now();
         if (options.debug >= 0)
             (0, _log_1._log)(1, `[${this.symbol.toUpperCase()}] Initialized \t${this.symbol} \tDirectory: ${options.startpath} (Took ${loadEnd - loadStart} ms)`);
+        try {
+            child_process_1.default.execSync("zip -v");
+        }
+        catch (e) {
+            (0, _log_1._log)(2, Error("Could not find command zip - if you're using the backupZip option make sure to install it using\n\t\tsudo apt install zip\n\t\t" +
+                "and restart this process. Until then, jsonsplitter will create normal unzipped backups."));
+        }
     }
     addAction = (action, args) => {
         if (!__1.i.splitterData[this.symbol].actions)
@@ -381,6 +420,9 @@ class jsonsplitter {
     create = (object) => {
         this.createSync(object);
         return this.recreateMainFiles();
+    };
+    createBackup = () => {
+        return (0, createBackup_1.createBackup)(this.symbol);
     };
     getMainKeySync = (keypath) => {
         this.addAction(`getMainKeySync`);
@@ -696,11 +738,6 @@ class jsonsplitter {
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
         let objpath = this.getFileByKeys(keypath_.slice(0, this._options.child_folders_keys));
         return (0, addKeyToFileKeys_1.addKeyToFileKeys)(this.symbol, objpath.path_main, (0, oberknecht_utils_1.addKeysToObject)({}, ["keys", key], fileNum), false);
-        // return addKeyToFileKeys(
-        //   this.symbol,
-        //   objpath.path_main,
-        //   `${key},${fileNum}`
-        // );
     };
     addHasChanges = (mainFilePath, hasChangesPath) => {
         let mainFile = __1.i.splitterData[this.symbol].actualMainFiles[mainFilePath];

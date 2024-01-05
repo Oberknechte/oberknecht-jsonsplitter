@@ -1,6 +1,6 @@
 {
   "name": "oberknecht-jsonsplitter",
-  "version": "2.1.9",
+  "version": "2.2.0",
   "description": "",
   "main": "export",
   "scripts": {
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/jubewe/jsonsplitter#readme",
   "dependencies": {
+    "dayjs": "^1.11.10",
     "fs": "^0.0.1-security",
     "node-cache": "^5.1.2",
     "oberknecht-emitters": "^1.0.8",

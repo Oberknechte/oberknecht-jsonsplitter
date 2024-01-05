@@ -15,6 +15,8 @@ function getPaths(sym) {
     let paths = {};
     function rd(dirpath) {
         let dir = fs_1.default.readdirSync(dirpath, { withFileTypes: true });
+        if (dir === __1.i.splitterData[sym]._options.backupPath)
+            return;
         dir
             .filter((a) => a.isFile() && a.name !== "_main.json")
             .forEach((path_) => {

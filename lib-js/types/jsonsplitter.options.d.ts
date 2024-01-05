@@ -35,4 +35,8 @@ export type jsonsplitteroptions = {
     moveToKeysFilesChunkSize?: number;
     preloadKeysFiles?: boolean;
     emitterOptions?: oberknechtEmitterOptions;
+    backupEnabled?: boolean;
+    backupPath?: string;
+    backupInterval?: number | "hourly" | "daily" | "weekly";
+    backupZip?: boolean;
 };
