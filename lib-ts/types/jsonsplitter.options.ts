@@ -63,7 +63,8 @@ export type jsonsplitteroptions = {
   preloadKeysFiles?: boolean;
   emitterOptions?: oberknechtEmitterOptions;
   backupEnabled?: boolean;
-  backupPath?: string;
+  backupPath?: string; // otherwise the base name + -backups
   backupInterval?: number | "hourly" | "daily" | "weekly";
-  backupZip?: boolean;
+  backupZip?: boolean; // creates zips instead of copying the folders
+  backupNumMax?: number; // only keeps this number of backups, deletes oldest
 };

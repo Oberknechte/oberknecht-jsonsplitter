@@ -1,1 +1,1 @@
-export declare function createBackup(sym: string): void;
+export declare function createBackup(sym: string, isAuto?: boolean): void;
