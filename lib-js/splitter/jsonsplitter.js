@@ -714,7 +714,7 @@ class jsonsplitter {
                 let err = Error(`key ${keys_[i]} not in object`);
                 if (emiterr)
                     this.emitError(err);
-                return undefined;
+                return object;
             }
             else {
                 parentObj = parentObj[keys_[i]];

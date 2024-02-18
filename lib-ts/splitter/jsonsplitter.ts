@@ -6,7 +6,6 @@ import {
   cleanTime,
   concatJSON,
   convertToArray,
-  deleteKeyFromObject,
   extendedTypeof,
   isNullUndefined,
   log,
@@ -1006,7 +1005,7 @@ export class jsonsplitter {
       if (!(keys_[i] in parentObj)) {
         let err = Error(`key ${keys_[i]} not in object`);
         if (emiterr) this.emitError(err);
-        return undefined;
+        return object;
       } else {
         parentObj = parentObj[keys_[i]];
       }
