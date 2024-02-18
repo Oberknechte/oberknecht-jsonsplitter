@@ -134,7 +134,8 @@ class jsonsplitter {
             (0, fileChange_1.fileChange)(this.symbol, true);
         }, options.filechange_interval ?? 15000);
         if (!options.cacheSettings.noAutoClearCacheSmart)
-            __1.i.splitterData[this.symbol].clearCacheInterval = setInterval(() => {
+            __1.i.splitterData[this.symbol].clearCacheInterval = setInterval(async () => {
+                await this.save();
                 (0, clearCacheSmart_1.clearCacheSmart)(this.symbol);
             }, [options.cacheSettings.autoClearInterval, options.cacheSettings.maxFileCacheAge, options.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
         if (options.backupEnabled) {
@@ -467,7 +468,9 @@ class jsonsplitter {
                 return undefined;
             }
             let r = {};
-            objpath.dirpaths.forEach((a, i) => {
+            objpath.dirpaths
+                .filter((a) => /.+\/\d+\.json$/.test(a))
+                .forEach((a, i) => {
                 let file = this._files[a]();
                 let objects = this.getKeyFromObjectSync(file, objpath.leftkeys, emitErr);
                 if (objects)

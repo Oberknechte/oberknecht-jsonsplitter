@@ -184,7 +184,8 @@ export class jsonsplitter {
       fileChange(this.symbol, true);
     }, options.filechange_interval ?? 15000);
     if (!options.cacheSettings.noAutoClearCacheSmart)
-      i.splitterData[this.symbol].clearCacheInterval = setInterval(() => {
+      i.splitterData[this.symbol].clearCacheInterval = setInterval(async () => {
+        await this.save();
         clearCacheSmart(this.symbol);
       }, [options.cacheSettings.autoClearInterval, options.cacheSettings.maxFileCacheAge, options.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
 
@@ -618,16 +619,18 @@ export class jsonsplitter {
       }
 
       let r = {};
-      objpath.dirpaths.forEach((a, i) => {
-        let file = this._files[a]();
-        let objects = this.getKeyFromObjectSync(
-          file,
-          objpath.leftkeys,
-          emitErr
-        );
+      objpath.dirpaths
+        .filter((a) => /.+\/\d+\.json$/.test(a))
+        .forEach((a, i) => {
+          let file = this._files[a]();
+          let objects = this.getKeyFromObjectSync(
+            file,
+            objpath.leftkeys,
+            emitErr
+          );
 
-        if (objects) r = concatJSON([r, objects]);
-      });
+          if (objects) r = concatJSON([r, objects]);
+        });
 
       return r;
     }
