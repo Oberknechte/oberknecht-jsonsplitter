@@ -17,6 +17,8 @@ export function _wf(
 
   if (!wfpath.startsWith(_mainpath(sym))) wfpath = _mainpath(sym, wfpath);
   let wfpath_ = uncorrectpath(wfpath);
+  let wfpathMove = uncorrectpath(wfpath) + ".jsmove";
+  let wfpathOld = uncorrectpath(wfpath) + ".jsold";
 
   if (
     sym &&
@@ -76,7 +78,13 @@ export function _wf(
 
       case "object": {
         let file_: Record<string, any> = { ...wffile };
-        if (file_.lastUsed) file_.lastUsed;
+        // if (file_.lastUsed) file_.lastUsed;
+        // if (fs.existsSync(wfpath_)) {
+        //   if (fs.existsSync(wfpath_)) fs.renameSync(wfpath_, wfpathOld);
+        //   fs.renameSync(wfpathMove, wfpath_);
+        //   fs.rmSync(wfpathOld);
+        // } else {
+        // }
         fs.writeFileSync(wfpath_, JSON.stringify(file_), "utf-8");
         break;
       }

@@ -189,6 +189,7 @@ export class jsonsplitter {
       }, [options.cacheSettings.autoClearInterval, options.cacheSettings.maxFileCacheAge, options.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
 
     if (options.backupEnabled) {
+      if (options.backupOnStart) createBackup(this.symbol);
       i.splitterData[this.symbol].backupInterval = setInterval(() => {
         createBackup(this.symbol);
       }, options.backupInterval);

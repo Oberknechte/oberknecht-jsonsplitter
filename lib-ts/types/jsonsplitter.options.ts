@@ -67,4 +67,5 @@ export type jsonsplitteroptions = {
   backupInterval?: number | "hourly" | "daily" | "weekly";
   backupZip?: boolean; // creates zips instead of copying the folders
   backupNumMax?: number; // only keeps this number of backups, deletes oldest
+  backupOnStart?: boolean;
 };

@@ -139,6 +139,8 @@ class jsonsplitter {
                 (0, clearCacheSmart_1.clearCacheSmart)(this.symbol);
             }, [options.cacheSettings.autoClearInterval, options.cacheSettings.maxFileCacheAge, options.cacheSettings.maxMainFileCacheAge].filter((a) => a).sort()[0]);
         if (options.backupEnabled) {
+            if (options.backupOnStart)
+                (0, createBackup_1.createBackup)(this.symbol);
             __1.i.splitterData[this.symbol].backupInterval = setInterval(() => {
                 (0, createBackup_1.createBackup)(this.symbol);
             }, options.backupInterval);

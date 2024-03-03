@@ -19,6 +19,8 @@ function _wf(sym, wfpath, wffile, fileType) {
     if (!wfpath.startsWith((0, _mainpath_1._mainpath)(sym)))
         wfpath = (0, _mainpath_1._mainpath)(sym, wfpath);
     let wfpath_ = (0, uncorrectPath_1.uncorrectpath)(wfpath);
+    let wfpathMove = (0, uncorrectPath_1.uncorrectpath)(wfpath) + ".jsmove";
+    let wfpathOld = (0, uncorrectPath_1.uncorrectpath)(wfpath) + ".jsold";
     if (sym &&
         wfpath.endsWith("_main.json") &&
         (!fileType || fileType === "main")) {
@@ -69,8 +71,13 @@ function _wf(sym, wfpath, wffile, fileType) {
             }
             case "object": {
                 let file_ = { ...wffile };
-                if (file_.lastUsed)
-                    file_.lastUsed;
+                // if (file_.lastUsed) file_.lastUsed;
+                // if (fs.existsSync(wfpath_)) {
+                //   if (fs.existsSync(wfpath_)) fs.renameSync(wfpath_, wfpathOld);
+                //   fs.renameSync(wfpathMove, wfpath_);
+                //   fs.rmSync(wfpathOld);
+                // } else {
+                // }
                 fs_1.default.writeFileSync(wfpath_, JSON.stringify(file_), "utf-8");
                 break;
             }

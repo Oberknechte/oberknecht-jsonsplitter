@@ -40,4 +40,5 @@ export declare type jsonsplitteroptions = {
     backupInterval?: number | "hourly" | "daily" | "weekly";
     backupZip?: boolean;
     backupNumMax?: number;
+    backupOnStart?: boolean;
 };
