@@ -68,4 +68,5 @@ export type jsonsplitteroptions = {
   backupZip?: boolean; // creates zips instead of copying the folders
   backupNumMax?: number; // only keeps this number of backups, deletes oldest
   backupOnStart?: boolean;
+  backupDir?: string;
 };

@@ -41,4 +41,5 @@ export declare type jsonsplitteroptions = {
     backupZip?: boolean;
     backupNumMax?: number;
     backupOnStart?: boolean;
+    backupDir?: string;
 };

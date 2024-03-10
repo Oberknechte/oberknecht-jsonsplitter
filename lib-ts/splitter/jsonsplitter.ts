@@ -99,8 +99,10 @@ export class jsonsplitter {
       options.cacheSettings.maxFileCacheAge ?? 600000;
     options.cacheSettings.maxMainFileCacheAge =
       options.cacheSettings.maxMainFileCacheAge ?? 600000;
+    options.backupDir = _mainpath(this.symbol, options.backupDir);
     options.backupPath = _mainpath(this.symbol, [
-      options.backupPath ?? options.startpath + "-backups",
+      options.backupDir,
+      options.backupPath ?? options.startpath.split("/").at(-1) + "-backups",
     ]);
 
     switch (options.backupInterval) {
