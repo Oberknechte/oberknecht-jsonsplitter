@@ -1,4 +1,4 @@
-export declare type getFileByKeysReturn = {
+export type getFileByKeysReturn = {
     path: string | undefined;
     dirpath: string | undefined;
     dirpaths: string[] | undefined;
@@ -13,8 +13,8 @@ export declare type getFileByKeysReturn = {
     leftkeys: string[];
     keynamesmatched: boolean;
 };
-export declare type mainFileEntry = Record<string, number>;
-export declare type mainFileType = {
+export type mainFileEntry = Record<string, number>;
+export type mainFileType = {
     keys: mainFileEntry[];
     filenum: number;
     filekeynum: number;
@@ -23,9 +23,9 @@ export declare type mainFileType = {
     hasChanges?: string[];
     keysMoved?: boolean;
 };
-export declare type fileEntryType = Record<string, any>;
-export declare type fileType = Record<string, any | fileEntryType>;
-export declare type deleteKeySyncrettype = boolean | undefined;
+export type fileEntryType = Record<string, any>;
+export type fileType = Record<string, any | fileEntryType>;
+export type deleteKeySyncrettype = boolean | undefined;
 export declare const maxJSONSize: 4194304;
 export declare const defaultKeysFileSize: 200000;
 export declare const defaultMoveToKeysFileChunkSize: 1000;

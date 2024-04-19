@@ -582,7 +582,11 @@ export class jsonsplitter {
     );
   };
 
-  getKeySync = (keypath: string | string[], emitErr?: boolean): any => {
+  getKeySync = (
+    keypath: string | string[],
+    emitErr?: boolean,
+    returnRecreate?: boolean
+  ): any => {
     this.addAction(`getKeySync`);
     let start = Date.now();
     let keypath_ = convertToArray(keypath);
@@ -602,7 +606,8 @@ export class jsonsplitter {
       }
 
       if (!objpath.keyfound && objpath.keynamesmatched) {
-        return getKeysForMainFile(this.symbol, objpath.path_main);
+        let r_ = getKeysForMainFile(this.symbol, objpath.path_main);
+        return returnRecreate ? recreate(r_) : r_;
       }
       let value = this.getKeyFromObjectSync(objpath.object, keypath_);
       this.oberknechtEmitter.emit(["getKeySync"], {
@@ -610,7 +615,7 @@ export class jsonsplitter {
         objpath: objpath,
         value: value,
       });
-      return value;
+      return returnRecreate ? recreate(value) : value;
     } else {
       if (!objpath.object_main) {
         let err = Error(
@@ -634,7 +639,7 @@ export class jsonsplitter {
           if (objects) r = concatJSON([r, objects]);
         });
 
-      return r;
+      return returnRecreate ? recreate(r) : r;
     }
   };
 

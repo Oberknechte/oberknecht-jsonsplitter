@@ -38,7 +38,7 @@ export declare class jsonsplitter {
     create: (object: Record<string, any>) => Promise<void>;
     createBackup: () => void;
     getMainKeySync: (keypath: string | string[]) => Record<string, any> | undefined;
-    getKeySync: (keypath: string | string[], emitErr?: boolean) => any;
+    getKeySync: (keypath: string | string[], emitErr?: boolean, returnRecreate?: boolean) => any;
     addKeySync: <nosilenttype extends boolean>(keypath: string | string[], value: any, nosilent?: nosilenttype, newFile?: boolean) => nosilenttype extends true ? boolean | fileType : boolean;
     editKeySync: <nosilenttype extends boolean>(keypath: string | string[], value: any, nosilent?: nosilenttype) => nosilenttype extends true ? any : boolean;
     editKeyAddSync: <nosilenttype extends boolean>(keypath: string | string[], value: any, nosilent?: nosilenttype) => nosilenttype extends true ? boolean | fileType : boolean;

@@ -439,7 +439,7 @@ class jsonsplitter {
         }
         return this.getKeyFromObjectSync(objpath.object_main, keypath.slice(this._options.child_folders_keys));
     };
-    getKeySync = (keypath, emitErr) => {
+    getKeySync = (keypath, emitErr, returnRecreate) => {
         this.addAction(`getKeySync`);
         let start = Date.now();
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
@@ -454,7 +454,8 @@ class jsonsplitter {
                 return undefined;
             }
             if (!objpath.keyfound && objpath.keynamesmatched) {
-                return (0, getKeysForMainFile_1.getKeysForMainFile)(this.symbol, objpath.path_main);
+                let r_ = (0, getKeysForMainFile_1.getKeysForMainFile)(this.symbol, objpath.path_main);
+                return returnRecreate ? (0, oberknecht_utils_1.recreate)(r_) : r_;
             }
             let value = this.getKeyFromObjectSync(objpath.object, keypath_);
             this.oberknechtEmitter.emit(["getKeySync"], {
@@ -462,7 +463,7 @@ class jsonsplitter {
                 objpath: objpath,
                 value: value,
             });
-            return value;
+            return returnRecreate ? (0, oberknecht_utils_1.recreate)(value) : value;
         }
         else {
             if (!objpath.object_main) {
@@ -480,7 +481,7 @@ class jsonsplitter {
                 if (objects)
                     r = (0, oberknecht_utils_1.concatJSON)([r, objects]);
             });
-            return r;
+            return returnRecreate ? (0, oberknecht_utils_1.recreate)(r) : r;
         }
     };
     addKeySync = (keypath, value, nosilent, newFile) => {
