@@ -92,7 +92,6 @@ export class jsonsplitter {
         ? options?.startpath
         : _mainpath(options.startpath)
       : _mainpath("./data");
-    _cdir(this.symbol, options.startpath);
     options.debug = options.debug ?? 2;
     options.cacheSettings = options.cacheSettings ?? {};
     options.cacheSettings.maxFileCacheAge =
@@ -147,6 +146,11 @@ export class jsonsplitter {
     this.oberknechtEmitter._options = options.emitterOptions;
 
     this._options = i.splitterData[this.symbol]._options = options;
+
+    if (options.resetOnStart)
+      fs.rm(options.startpath, { recursive: true }, () => {});
+
+    _cdir(this.symbol, options.startpath);
 
     i.oberknechtEmitter[this.symbol] = this.oberknechtEmitter;
 

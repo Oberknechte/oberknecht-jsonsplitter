@@ -69,4 +69,5 @@ export type jsonsplitteroptions = {
   backupNumMax?: number; // only keeps this number of backups, deletes oldest
   backupOnStart?: boolean;
   backupDir?: string;
+  resetOnStart?: boolean;
 };

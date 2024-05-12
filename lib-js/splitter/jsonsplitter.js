@@ -71,7 +71,6 @@ class jsonsplitter {
                 ? options?.startpath
                 : (0, _mainpath_1._mainpath)(options.startpath)
             : (0, _mainpath_1._mainpath)("./data");
-        (0, _cdir_1._cdir)(this.symbol, options.startpath);
         options.debug = options.debug ?? 2;
         options.cacheSettings = options.cacheSettings ?? {};
         options.cacheSettings.maxFileCacheAge =
@@ -114,6 +113,9 @@ class jsonsplitter {
         };
         this.oberknechtEmitter._options = options.emitterOptions;
         this._options = __1.i.splitterData[this.symbol]._options = options;
+        if (options.resetOnStart)
+            fs_1.default.rm(options.startpath, { recursive: true }, () => { });
+        (0, _cdir_1._cdir)(this.symbol, options.startpath);
         __1.i.oberknechtEmitter[this.symbol] = this.oberknechtEmitter;
         // process.on("unhandledRejection", e => this.oberknechtEmitter.emitError("unhandledRejection", e));
         // process.on("uncaughtException", e => this.oberknechtEmitter.emitError("uncaughtException", e));

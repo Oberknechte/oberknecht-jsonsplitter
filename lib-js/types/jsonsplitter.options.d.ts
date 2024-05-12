@@ -1,7 +1,7 @@
 import { oberknechtEmitterOptions } from "oberknecht-emitters/lib-ts/types/oberknecht.emitter.options";
 export declare const jsonsplitterOptionsDebugs: readonly ["all", "_cdir", "_mainpath", "_rf", "_wf", "addKeyToFileKeys", "checkSize", "clearCache", "clearCacheSmart", "getFiles", "getKeyFromKeysFiles", "getKeysFiles", "getKeysForMainFile", "getKeysPaths", "getMainFiles", "getMainPaths", "moveToKeysFiles", "removeKeyFromKeysFile", "saveKeysFile"];
-export type jsonsplitterOptionsDebugsType = typeof jsonsplitterOptionsDebugs[number];
-export type jsonsplitteroptions = {
+export declare type jsonsplitterOptionsDebugsType = typeof jsonsplitterOptionsDebugs[number];
+export declare type jsonsplitteroptions = {
     child_folders_keys?: number | 1;
     debug?: number | 2;
     debugs?: jsonsplitterOptionsDebugsType[];
@@ -42,4 +42,5 @@ export type jsonsplitteroptions = {
     backupNumMax?: number;
     backupOnStart?: boolean;
     backupDir?: string;
+    resetOnStart?: boolean;
 };
