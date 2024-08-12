@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._wf = void 0;
+exports._wf = _wf;
 const _rf_1 = require("./_rf");
 const _mainpath_1 = require("./_mainpath");
 const fs_1 = __importDefault(require("fs"));
@@ -90,4 +90,3 @@ function _wf(sym, wfpath, wffile, fileType) {
         return new Error(`_wf: Could not write file\n${e}`);
     }
 }
-exports._wf = _wf;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._log = void 0;
+exports._log = _log;
 function date_() {
     return new Date(new Date().setMinutes(new Date().getMinutes() - new Date().getTimezoneOffset()))
         .toISOString()
@@ -64,4 +64,3 @@ function _log(logopt, logmsg, logcolorfg, logcolorbg) {
             return console.error(...logm);
     }
 }
-exports._log = _log;

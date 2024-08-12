@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeKeyFromKeysFile = void 0;
+exports.removeKeyFromKeysFile = removeKeyFromKeysFile;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const getKeyFromKeysFiles_1 = require("./getKeyFromKeysFiles");
 const __1 = require("..");
@@ -20,4 +20,3 @@ function removeKeyFromKeysFile(sym, keypath) {
     (0, oberknecht_utils_1.addKeysToObject)(newFile, ["hasChanges"], true);
     __1.i.splitterData[sym].actualKeysFiles[keysFilePath] = newFile;
 }
-exports.removeKeyFromKeysFile = removeKeyFromKeysFile;

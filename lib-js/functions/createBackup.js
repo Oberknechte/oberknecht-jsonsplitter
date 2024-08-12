@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createBackup = void 0;
+exports.createBackup = createBackup;
 const fs_1 = __importDefault(require("fs"));
 const __1 = require("..");
 const path_1 = __importDefault(require("path"));
@@ -63,4 +63,3 @@ function createBackup(sym, isAuto) {
         (0, _log_1._log)(1, `[${sym.toUpperCase()}] Deleted ${deleteBackupsPaths.length} old backup${(0, oberknecht_utils_1.returnOnNumber)(deleteBackupsPaths.length, 1, "s")}`);
     }
 }
-exports.createBackup = createBackup;

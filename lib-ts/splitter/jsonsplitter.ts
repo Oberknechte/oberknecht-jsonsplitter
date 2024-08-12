@@ -810,7 +810,7 @@ export class jsonsplitter {
         checkSize(
           this.symbol,
           recreate(objpath.object),
-          this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true)
+          this.addAppendKeysToObjectSync(recreate(objpath.object), keypath_, value, true)
         )
       ) {
         let valueNew = this.addAppendKeysToObjectSync(

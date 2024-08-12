@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveKeysFile = void 0;
+exports.saveKeysFile = saveKeysFile;
 const __1 = require("..");
 const _wf_1 = require("./_wf");
 const debugLog_1 = require("./debugLog");
@@ -13,4 +13,3 @@ function saveKeysFile(sym, keysFilePath) {
         delete keysFile.hasChanges;
     (0, _wf_1._wf)(sym, (0, uncorrectPath_1.uncorrectpath)(keysFilePath), keysFile);
 }
-exports.saveKeysFile = saveKeysFile;

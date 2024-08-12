@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.debugLog = void 0;
+exports.debugLog = debugLog;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const __1 = require("..");
 const _mainpath_1 = require("./_mainpath");
@@ -61,4 +61,3 @@ function debugLog(sym, debugName, ...functionArgs) {
     if (appendLogTriggered === false)
         appendDebugLogs().catch((e) => console.error(e));
 }
-exports.debugLog = debugLog;

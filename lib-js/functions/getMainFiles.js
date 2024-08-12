@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMainFiles = void 0;
+exports.getMainFiles = getMainFiles;
 const __1 = require("..");
 const _rf_1 = require("./_rf");
 const debugLog_1 = require("./debugLog");
@@ -33,4 +33,3 @@ function getMainFiles(sym) {
     __1.i.splitterData[sym].mainFiles = mainFiles;
     return mainFiles;
 }
-exports.getMainFiles = getMainFiles;

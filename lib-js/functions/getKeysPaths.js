@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getKeysPaths = void 0;
+exports.getKeysPaths = getKeysPaths;
 const path_1 = __importDefault(require("path"));
 const __1 = require("..");
 const fs_1 = __importDefault(require("fs"));
@@ -32,4 +32,3 @@ function getKeysPaths(sym) {
     __1.i.splitterData[sym].keysPaths = keysPaths;
     return keysPaths;
 }
-exports.getKeysPaths = getKeysPaths;
