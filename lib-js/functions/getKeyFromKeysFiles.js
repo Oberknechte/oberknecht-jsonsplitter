@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getKeyFromKeysFiles = void 0;
+exports.getKeyFromKeysFiles = getKeyFromKeysFiles;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const __1 = require("..");
 const debugLog_1 = require("./debugLog");
@@ -41,4 +41,3 @@ function getKeyFromKeysFiles(sym, keypath, withKeysFilePath) {
         }
         : val;
 }
-exports.getKeyFromKeysFiles = getKeyFromKeysFiles;

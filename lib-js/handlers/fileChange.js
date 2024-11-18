@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fileChange = void 0;
+exports.fileChange = fileChange;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const __1 = require("..");
 const _log_1 = require("../functions/_log");
@@ -62,4 +62,3 @@ async function fileChange(sym, auto) {
         resolve();
     });
 }
-exports.fileChange = fileChange;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkSize = void 0;
+exports.checkSize = checkSize;
 const __1 = require("..");
 const jsonsplitter_1 = require("../types/jsonsplitter");
 const debugLog_1 = require("./debugLog");
@@ -27,4 +27,3 @@ function checkSize(sym, file, object, size, objectSizeMultiplier) {
         return objectBuffer * (objectSizeMultiplier ?? 1) >= maxSize;
     return fileBuffer + objectBuffer >= maxSize;
 }
-exports.checkSize = checkSize;

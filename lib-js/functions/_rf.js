@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._rf = void 0;
+exports._rf = _rf;
 const __1 = require("..");
 const _mainpath_1 = require("./_mainpath");
 const _wf_1 = require("./_wf");
@@ -70,4 +70,3 @@ function _rf(sym, rfpath, parse_json) {
         return new Error(`_rf: Could not read file\n${e}`);
     }
 }
-exports._rf = _rf;

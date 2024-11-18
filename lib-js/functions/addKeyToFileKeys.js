@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addKeyToFileKeys = void 0;
+exports.addKeyToFileKeys = addKeyToFileKeys;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const __1 = require("..");
 const checkSize_1 = require("./checkSize");
@@ -65,4 +65,3 @@ function addKeyToFileKeys(sym, mainFilePath, chunk, alwaysNew) {
     // saveKeysFile(sym, keysFilePath);
     return newFile;
 }
-exports.addKeyToFileKeys = addKeyToFileKeys;

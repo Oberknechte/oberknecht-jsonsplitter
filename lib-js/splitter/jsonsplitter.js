@@ -581,7 +581,7 @@ class jsonsplitter {
         }
         else {
             let noAppendNewFile = false;
-            if ((0, checkSize_1.checkSize)(this.symbol, (0, oberknecht_utils_1.recreate)(objpath.object), this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true))) {
+            if ((0, checkSize_1.checkSize)(this.symbol, (0, oberknecht_utils_1.recreate)(objpath.object), this.addAppendKeysToObjectSync((0, oberknecht_utils_1.recreate)(objpath.object), keypath_, value, true))) {
                 let valueNew = this.addAppendKeysToObjectSync(objpath.object, keypath_, value, true);
                 this.deleteKeySync(keypath_);
                 newfile = this.addKeySync(keypath_, valueNew, true);

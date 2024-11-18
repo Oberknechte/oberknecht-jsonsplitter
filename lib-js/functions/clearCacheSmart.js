@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clearCacheSmart = void 0;
+exports.clearCacheSmart = clearCacheSmart;
 const __1 = require("..");
 const _log_1 = require("./_log");
 const debugLog_1 = require("./debugLog");
@@ -37,4 +37,3 @@ function clearCacheSmart(sym, excludeMainFiles) {
     if (__1.i.splitterData[sym]._options?.debug > 2)
         (0, _log_1._log)(0, `[CACHE] [SMART] Cleared ${clearedFiles} Files (${filesnum + clearedFiles} → ${filesnum}) and ${clearedMainFiles} Mainfiles (${mainfilesnum + clearedMainFiles} → ${mainfilesnum})`);
 }
-exports.clearCacheSmart = clearCacheSmart;

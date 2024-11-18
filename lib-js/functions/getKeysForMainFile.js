@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getKeysForMainFile = void 0;
+exports.getKeysForMainFile = getKeysForMainFile;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const __1 = require("..");
 const getKeysFiles_1 = require("./getKeysFiles");
@@ -17,4 +17,3 @@ function getKeysForMainFile(sym, mainFilePath) {
     });
     return keys;
 }
-exports.getKeysForMainFile = getKeysForMainFile;

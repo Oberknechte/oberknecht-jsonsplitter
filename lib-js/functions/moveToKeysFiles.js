@@ -3,7 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.moveToKeysFiles = exports.moveToKeysFilesSync = void 0;
+exports.moveToKeysFilesSync = moveToKeysFilesSync;
+exports.moveToKeysFiles = moveToKeysFiles;
 const __1 = require("..");
 const fs_1 = __importDefault(require("fs"));
 const parseKeysFilePath_1 = require("./parseKeysFilePath");
@@ -82,7 +83,6 @@ async function moveToKeysFilesSync(sym, mainFilePath) {
     `(Took ${(0, oberknecht_utils_1.cleanTime)(moveEnd - moveStart, 4).time.join(" ")})`);
     return true;
 }
-exports.moveToKeysFilesSync = moveToKeysFilesSync;
 async function moveToKeysFiles(sym, mainFilePath) {
     if ((0, oberknecht_utils_1.getKeyFromObject)(movingFiles, [sym, mainFilePath]))
         return (0, oberknecht_utils_1.getKeyFromObject)(movingFiles, [sym, mainFilePath]);
@@ -91,4 +91,3 @@ async function moveToKeysFiles(sym, mainFilePath) {
     });
     (0, oberknecht_utils_1.addKeysToObject)(movingFiles, [sym, mainFilePath], prom);
 }
-exports.moveToKeysFiles = moveToKeysFiles;

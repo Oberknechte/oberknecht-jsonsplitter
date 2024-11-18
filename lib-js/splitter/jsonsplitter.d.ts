@@ -39,9 +39,9 @@ export declare class jsonsplitter {
     createBackup: () => void;
     getMainKeySync: (keypath: string | string[]) => Record<string, any> | undefined;
     getKeySync: (keypath: string | string[], emitErr?: boolean, returnRecreate?: boolean) => any;
-    addKeySync: <nosilenttype extends boolean>(keypath: string | string[], value: any, nosilent?: nosilenttype, newFile?: boolean) => nosilenttype extends true ? boolean | fileType : boolean;
-    editKeySync: <nosilenttype extends boolean>(keypath: string | string[], value: any, nosilent?: nosilenttype) => nosilenttype extends true ? any : boolean;
-    editKeyAddSync: <nosilenttype extends boolean>(keypath: string | string[], value: any, nosilent?: nosilenttype) => nosilenttype extends true ? boolean | fileType : boolean;
+    addKeySync: <nosilenttype extends boolean>(keypath: string | string[], value: any, nosilent?: nosilenttype, newFile?: boolean) => nosilenttype extends true ? fileType | boolean : boolean;
+    editKeySync: <nosilenttype extends boolean>(keypath: string | string[], value: any, nosilent?: nosilenttype) => nosilenttype extends true ? any | boolean : boolean;
+    editKeyAddSync: <nosilenttype extends boolean>(keypath: string | string[], value: any, nosilent?: nosilenttype) => nosilenttype extends true ? fileType | boolean : boolean;
     deleteKeySync: <nosilenttype extends boolean>(keypath: string | string[], nosilent?: nosilenttype, emiterr?: boolean) => nosilenttype extends true ? fileType | deleteKeySyncrettype : deleteKeySyncrettype;
     addKeysToObjectSync: (object: Record<string, any>, keys: string | string[], value: any) => Record<string, any>;
     addAppendKeysToObjectSync: (object: Record<string, any>, keys: string | string[], value: any, returnValue?: boolean) => Record<string, any>;

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPaths = void 0;
+exports.getPaths = getPaths;
 const path_1 = __importDefault(require("path"));
 const __1 = require("..");
 const fs_1 = __importDefault(require("fs"));
@@ -34,4 +34,3 @@ function getPaths(sym) {
     __1.i.splitterData[sym].paths = paths;
     return paths;
 }
-exports.getPaths = getPaths;
