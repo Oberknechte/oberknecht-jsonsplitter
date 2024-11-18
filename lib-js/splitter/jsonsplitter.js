@@ -701,7 +701,7 @@ class jsonsplitter {
         let keys_ = (0, oberknecht_utils_1.convertToArray)(keys);
         let value = object;
         for (let i = 0; i < keys_.length; i++) {
-            if (value.hasOwnProperty(keys_[i])) {
+            if (value?.hasOwnProperty?.(keys_[i])) {
                 value = value[keys_[i]];
             }
             else {
