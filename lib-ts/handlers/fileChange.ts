@@ -2,9 +2,10 @@ import { arrayModifiers, recreate } from "oberknecht-utils";
 import { i } from "..";
 import { _log } from "../functions/_log";
 import { _wf } from "../functions/_wf";
+import { appendDebugLogs } from "../functions/debugLog";
 
 export async function fileChange(sym: string, auto?: boolean) {
-  return new Promise<void>((resolve) => {
+  return new Promise<void>(async (resolve) => {
     let changed_files = 0;
     i.oberknechtEmitter[sym].emit(
       "filechange",
@@ -29,7 +30,10 @@ export async function fileChange(sym: string, auto?: boolean) {
         return;
       if (mainFile_.keysMoved) delete mainFile_.keys;
       if ((mainFile_.hasChanges ?? []).length === 0 && !mainFile_.hasKeyChanges)
-        return _wf(sym, mainFilePath, mainFile_, "main");
+        return;
+      // return _wf(sym, mainFilePath, mainFile_, "main");
+
+      // console.log("before save", mainFile_);
 
       arrayModifiers
         .removeDuplicates(mainFile_.hasChanges)
@@ -70,6 +74,9 @@ export async function fileChange(sym: string, auto?: boolean) {
           auto ? "[Automatic] " : ""
         } Changed ${changed_files} files`
       );
+
+    if (i.splitterData[sym]?._options?.debugsLogDir)
+      await appendDebugLogs(sym).catch();
 
     resolve();
   });

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.debugLog = void 0;
+exports.appendDebugLogs = exports.debugLog = void 0;
 const oberknecht_utils_1 = require("oberknecht-utils");
 const __1 = require("..");
 const _mainpath_1 = require("./_mainpath");
@@ -42,23 +42,24 @@ function debugLog(sym, debugName, ...functionArgs) {
             ].join(" "),
         ].join(""));
     }
-    async function appendDebugLogs() {
-        appendLogTriggered = true;
-        if (appendLogs.length === 0)
-            return (appendLogTriggered = false);
-        let debugsLogDir = (0, _mainpath_1._mainpath)(sym, __1.i.splitterData[sym]._options.debugsLogDir);
-        if (!fs_1.default.existsSync(debugsLogDir))
-            fs_1.default.mkdirSync(debugsLogDir, { recursive: true });
-        if (!fileName)
-            fileName = `${sym}-${Date.now()}.log`;
-        let filePath = path_1.default.resolve(debugsLogDir, fileName);
-        let appendLogs_ = appendLogs.splice(0, appendLogs.length);
-        fs_1.default.appendFileSync(filePath, appendLogs_.join("\n"));
-        (0, oberknecht_utils_1.sleep)(5000).then(() => {
-            appendDebugLogs();
-        });
-    }
     if (appendLogTriggered === false)
-        appendDebugLogs().catch((e) => console.error(e));
+        appendDebugLogs(sym).catch((e) => console.error(e));
 }
 exports.debugLog = debugLog;
+async function appendDebugLogs(sym) {
+    appendLogTriggered = true;
+    if (appendLogs.length === 0)
+        return (appendLogTriggered = false);
+    let debugsLogDir = (0, _mainpath_1._mainpath)(sym, __1.i.splitterData[sym]._options.debugsLogDir);
+    if (!fs_1.default.existsSync(debugsLogDir))
+        fs_1.default.mkdirSync(debugsLogDir, { recursive: true });
+    if (!fileName)
+        fileName = `${sym}-${Date.now()}.log`;
+    let filePath = path_1.default.resolve(debugsLogDir, fileName);
+    let appendLogs_ = appendLogs.splice(0, appendLogs.length);
+    fs_1.default.appendFileSync(filePath, appendLogs_.join("\n"));
+    (0, oberknecht_utils_1.sleep)(5000).then(() => {
+        appendDebugLogs(sym);
+    });
+}
+exports.appendDebugLogs = appendDebugLogs;

@@ -538,10 +538,11 @@ class jsonsplitter {
         let filePath = objpath.path;
         let newfile;
         if (!objpath.object ||
-            this.getKeyFromObjectSync(objpath.object_main, [
-                "keys",
-                keypath_[objpath.object_main.keynames.length],
-            ]) === undefined) {
+            (keypath_.length > objpath.object_main.keynames.length &&
+                this.getKeyFromObjectSync(objpath.object_main, [
+                    "keys",
+                    keypath_[objpath.object_main.keynames.length],
+                ]) === undefined)) {
             newfile = (0, oberknecht_utils_1.recreate)(this.addKeySync(keypath_, value, nosilent));
         }
         else {
@@ -552,6 +553,19 @@ class jsonsplitter {
                 noAppendNewFile = true;
             }
             else {
+                if (keypath_.length === objpath.object_main.keynames.length) {
+                    Object.keys(this.getKeySync(keypath_))
+                        .filter((a) => !Object.keys(value ?? {}).includes(a))
+                        .forEach((a) => {
+                        (0, removeKeyFromKeysFile_1.removeKeyFromKeysFile)(this.symbol, [...keypath_, a]);
+                    });
+                    let mainfile = objpath.object_main;
+                    // removeKeyFromKeysFile(this.symbol, keypath_);
+                    (mainfile.num = Object.keys(value ?? {}).length),
+                        (mainfile.filekeynum = Object.keys(value ?? {}).length),
+                        this.addHasChanges(objpath.path_main);
+                    __1.i.splitterData[this.symbol].actualMainFiles[mainpath] = mainfile;
+                }
                 newfile = this.addKeysToObjectSync(objpath.object, keypath_, value);
                 this.oberknechtEmitter.emit(["editKeySync", "_change"], {
                     keyPath: keypath_,
@@ -661,7 +675,7 @@ class jsonsplitter {
     };
     addKeysToObjectSync = (object, keys, value) => {
         let keys_ = (0, oberknecht_utils_1.convertToArray)(keys);
-        let parentObj = object;
+        let parentObj = object ?? {};
         for (let i = 0; i < keys_.length - 1; i++) {
             let key = keys_[i];
             if (!(key in parentObj))

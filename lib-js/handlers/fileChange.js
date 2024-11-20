@@ -5,8 +5,9 @@ const oberknecht_utils_1 = require("oberknecht-utils");
 const __1 = require("..");
 const _log_1 = require("../functions/_log");
 const _wf_1 = require("../functions/_wf");
+const debugLog_1 = require("../functions/debugLog");
 async function fileChange(sym, auto) {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
         let changed_files = 0;
         __1.i.oberknechtEmitter[sym].emit("filechange", `${auto ? "[Automatic] " : ""} Executed`);
         if (__1.i.splitterData[sym]._options?.debug > 2)
@@ -24,7 +25,9 @@ async function fileChange(sym, auto) {
             if (mainFile_.keysMoved)
                 delete mainFile_.keys;
             if ((mainFile_.hasChanges ?? []).length === 0 && !mainFile_.hasKeyChanges)
-                return (0, _wf_1._wf)(sym, mainFilePath, mainFile_, "main");
+                return;
+            // return _wf(sym, mainFilePath, mainFile_, "main");
+            // console.log("before save", mainFile_);
             oberknecht_utils_1.arrayModifiers
                 .removeDuplicates(mainFile_.hasChanges)
                 .forEach((filepath) => {
@@ -59,6 +62,8 @@ async function fileChange(sym, auto) {
         __1.i.oberknechtEmitter[sym].emit("filechange", `${auto ? "[Automatic] " : ""}Finished, changed ${changed_files} files`);
         if (__1.i.splitterData[sym]._options?.debug > 2)
             (0, _log_1._log)(0, `[JSONSPLITTER] [FILECHANGE] ${auto ? "[Automatic] " : ""} Changed ${changed_files} files`);
+        if (__1.i.splitterData[sym]?._options?.debugsLogDir)
+            await (0, debugLog_1.appendDebugLogs)(sym).catch();
         resolve();
     });
 }

@@ -33,10 +33,9 @@ export function addKeyToFileKeys(
     .at(-1)
     ?.toString();
 
-    
-    let keysFile;
-    let isFirst = false;
-    let isNew = false;
+  let keysFile;
+  let isFirst = false;
+  let isNew = false;
   if (!keysFilePath) {
     keysFilePath = parseKeysFilePath(mainFilePath, "keys0.json");
     i.splitterData[sym].actualKeysFiles[keysFilePath] = {};
@@ -46,10 +45,10 @@ export function addKeyToFileKeys(
     keysFile = i.splitterData[sym].keysFiles[keysFilePath]();
     isFirst = isNew = true;
   }
-  
+
   let lastFileNum = parseInt(
     keysFilePath.replace(/.+keys(?=\d+\.json$)/, "").replace(/\.json$/, "")
-    );
+  );
   if (!keysFile)
     keysFile = i.splitterData[sym].keysFiles[keysFilePath]?.() ?? {};
 

@@ -747,10 +747,11 @@ export class jsonsplitter {
     let newfile;
     if (
       !objpath.object ||
-      this.getKeyFromObjectSync(objpath.object_main, [
-        "keys",
-        keypath_[objpath.object_main.keynames.length],
-      ]) === undefined
+      (keypath_.length > objpath.object_main.keynames.length &&
+        this.getKeyFromObjectSync(objpath.object_main, [
+          "keys",
+          keypath_[objpath.object_main.keynames.length],
+        ]) === undefined)
     ) {
       newfile = recreate(this.addKeySync(keypath_, value, nosilent));
     } else {
@@ -767,6 +768,21 @@ export class jsonsplitter {
 
         noAppendNewFile = true;
       } else {
+        if (keypath_.length === objpath.object_main.keynames.length) {
+          Object.keys(this.getKeySync(keypath_))
+            .filter((a) => !Object.keys(value ?? {}).includes(a))
+            .forEach((a) => {
+              removeKeyFromKeysFile(this.symbol, [...keypath_, a]);
+            });
+
+
+          let mainfile = objpath.object_main;
+          // removeKeyFromKeysFile(this.symbol, keypath_);
+          (mainfile.num = Object.keys(value ?? {}).length),
+            (mainfile.filekeynum = Object.keys(value ?? {}).length),
+            this.addHasChanges(objpath.path_main);
+          i.splitterData[this.symbol].actualMainFiles[mainpath] = mainfile;
+        }
         newfile = this.addKeysToObjectSync(objpath.object, keypath_, value);
         this.oberknechtEmitter.emit(["editKeySync", "_change"], {
           keyPath: keypath_,
@@ -936,7 +952,7 @@ export class jsonsplitter {
   ): Record<string, any> => {
     let keys_ = convertToArray(keys);
 
-    let parentObj = object;
+    let parentObj = object ?? {};
     for (let i = 0; i < keys_.length - 1; i++) {
       let key = keys_[i];
       if (!(key in parentObj)) parentObj[key] = {};

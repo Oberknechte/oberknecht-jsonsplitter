@@ -61,25 +61,22 @@ export function debugLog(sym: string, debugName: string, ...functionArgs: any) {
     );
   }
 
-  async function appendDebugLogs() {
-    appendLogTriggered = true;
-    if (appendLogs.length === 0) return (appendLogTriggered = false);
-    let debugsLogDir = _mainpath(
-      sym,
-      i.splitterData[sym]._options.debugsLogDir
-    );
-    if (!fs.existsSync(debugsLogDir))
-      fs.mkdirSync(debugsLogDir, { recursive: true });
-    if (!fileName) fileName = `${sym}-${Date.now()}.log`;
-    let filePath = path.resolve(debugsLogDir, fileName);
-    let appendLogs_ = appendLogs.splice(0, appendLogs.length);
-    fs.appendFileSync(filePath, appendLogs_.join("\n"));
-
-    sleep(5000).then(() => {
-      appendDebugLogs();
-    });
-  }
-
   if (appendLogTriggered === false)
-    appendDebugLogs().catch((e) => console.error(e));
+    appendDebugLogs(sym).catch((e) => console.error(e));
+}
+
+export async function appendDebugLogs(sym) {
+  appendLogTriggered = true;
+  if (appendLogs.length === 0) return (appendLogTriggered = false);
+  let debugsLogDir = _mainpath(sym, i.splitterData[sym]._options.debugsLogDir);
+  if (!fs.existsSync(debugsLogDir))
+    fs.mkdirSync(debugsLogDir, { recursive: true });
+  if (!fileName) fileName = `${sym}-${Date.now()}.log`;
+  let filePath = path.resolve(debugsLogDir, fileName);
+  let appendLogs_ = appendLogs.splice(0, appendLogs.length);
+  fs.appendFileSync(filePath, appendLogs_.join("\n"));
+
+  sleep(5000).then(() => {
+    appendDebugLogs(sym);
+  });
 }
