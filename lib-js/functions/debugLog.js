@@ -43,10 +43,10 @@ function debugLog(sym, debugName, ...functionArgs) {
         ].join(""));
     }
     if (appendLogTriggered === false)
-        appendDebugLogs(sym).catch((e) => console.error(e));
+        appendDebugLogs(sym);
 }
 exports.debugLog = debugLog;
-async function appendDebugLogs(sym) {
+function appendDebugLogs(sym) {
     appendLogTriggered = true;
     if (appendLogs.length === 0)
         return (appendLogTriggered = false);
@@ -58,8 +58,9 @@ async function appendDebugLogs(sym) {
     let filePath = path_1.default.resolve(debugsLogDir, fileName);
     let appendLogs_ = appendLogs.splice(0, appendLogs.length);
     fs_1.default.appendFileSync(filePath, appendLogs_.join("\n"));
-    (0, oberknecht_utils_1.sleep)(5000).then(() => {
-        appendDebugLogs(sym);
-    });
+    appendLogTriggered = false;
+    // sleep(5000).then(() => {
+    //   appendDebugLogs(sym);
+    // });
 }
 exports.appendDebugLogs = appendDebugLogs;

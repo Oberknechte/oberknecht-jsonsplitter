@@ -38,7 +38,7 @@ import { checkSize } from "../functions/checkSize";
 import { getKeysPaths } from "../functions/getKeysPaths";
 import { getKeysFiles } from "../functions/getKeysFiles";
 import { getKeysForMainFile } from "../functions/getKeysForMainFile";
-import { moveToKeysFiles } from "../functions/moveToKeysFiles";
+import { moveToKeysFiles, moveToKeysFilesSync } from "../functions/moveToKeysFiles";
 import { getKeyFromKeysFiles } from "../functions/getKeyFromKeysFiles";
 import { addKeyToFileKeys } from "../functions/addKeyToFileKeys";
 import { removeKeyFromKeysFile } from "../functions/removeKeyFromKeysFile";
@@ -266,21 +266,34 @@ export class jsonsplitter {
     });
   };
 
-  save = async () => {
-    return new Promise<void>(async (resolve, reject) => {
-      let filechangeIntervalExisted =
-        (i.splitterData[this.symbol].filechangeInterval ?? undefined) !==
-        undefined;
-      if (filechangeIntervalExisted)
-        clearInterval(i.splitterData[this.symbol].filechangeInterval);
-      await fileChange(this.symbol);
-      if (filechangeIntervalExisted)
-        i.splitterData[this.symbol].filechangeInterval = setInterval(() => {
-          fileChange(this.symbol, true);
-        }, this._options.filechange_interval ?? 15000);
+  // save = async () => {
+  //   return new Promise<void>(async (resolve, reject) => {
+  //     let filechangeIntervalExisted =
+  //       (i.splitterData[this.symbol].filechangeInterval ?? undefined) !==
+  //       undefined;
+  //     if (filechangeIntervalExisted)
+  //       clearInterval(i.splitterData[this.symbol].filechangeInterval);
+  //     fileChange(this.symbol);
+  //     if (filechangeIntervalExisted)
+  //       i.splitterData[this.symbol].filechangeInterval = setInterval(() => {
+  //         fileChange(this.symbol, true);
+  //       }, this._options.filechange_interval ?? 15000);
 
-      resolve();
-    });
+  //     resolve();
+  //   });
+  // };
+
+  save = async () => {
+    let filechangeIntervalExisted =
+      (i.splitterData[this.symbol].filechangeInterval ?? undefined) !==
+      undefined;
+    if (filechangeIntervalExisted)
+      clearInterval(i.splitterData[this.symbol].filechangeInterval);
+    fileChange(this.symbol);
+    if (filechangeIntervalExisted)
+      i.splitterData[this.symbol].filechangeInterval = setInterval(() => {
+        fileChange(this.symbol, true);
+      }, this._options.filechange_interval ?? 15000);
   };
 
   clearCache = (excludeMainFiles?: boolean) => {
@@ -493,7 +506,7 @@ export class jsonsplitter {
     };
   };
 
-  createSync = (object: Record<string, any>) => {
+  createEmptySync = (object: Record<string, any>) => {
     let this_ = this;
     let objdir = this.getDirPathsByObject(object);
 
@@ -508,7 +521,7 @@ export class jsonsplitter {
       objmain.filenum = 0;
       objmain.filekeynum = 0;
       objmain.num = 0;
-      objmain.keys = {};
+      // objmain.keys = {};
       objmain.keynames = obj.path;
       if (keychunks.length === 0)
         _wf(
@@ -519,14 +532,14 @@ export class jsonsplitter {
 
       keychunks.forEach((keychunk, i) => {
         let keychunk_ = {};
-        objmain.num += keychunk.length;
-        objmain.filekeynum = keychunk.length;
+        // objmain.num += keychunk.length;
+        // objmain.filekeynum = keychunk.length;
         objmain.filenum = i;
-        objmain.keys = {};
-        keychunk.forEach((a) => {
-          keychunk_[a] = obj.object[a];
-          objmain.keys[a] = i;
-        });
+        // objmain.keys = {};
+        // keychunk.forEach((a) => {
+        //   keychunk_[a] = obj.object[a];
+        //   objmain.keys[a] = i;
+        // });
 
         let chunkfile = this_.createObjectFromKeys(obj.path, keychunk_);
 
@@ -539,11 +552,12 @@ export class jsonsplitter {
 
       _wf(this_.symbol, objmainpath, objmain);
       // this_.recreateMainFiles();
-      moveToKeysFiles(this_.symbol, objmainpath);
+      moveToKeysFilesSync(this_.symbol, objmainpath)
     }
 
     function fromArr(a: any[]) {
       if (!Array.isArray(a)) return actualCreate(a);
+      if (a.length === 0) return actualCreate({path: [], object: {}});
 
       a.forEach((b) => {
         if (Array.isArray(b)) return fromArr(b);
@@ -555,12 +569,13 @@ export class jsonsplitter {
 
     getMainFiles(this.symbol);
     getFiles(this.symbol);
+    getKeysFiles(this.symbol);
 
     return objdir;
   };
 
   create = (object: Record<string, any>): Promise<void> => {
-    this.createSync(object);
+    this.createEmptySync(object);
     return this.recreateMainFiles();
   };
 
@@ -658,10 +673,11 @@ export class jsonsplitter {
     let objpath = this.getFileByKeys(keypath_);
 
     if (isNullUndefined(objpath.object_main?.num)) {
-      this.createSync(this.addKeysToObjectSync({}, keypath_, value));
-      getMainPaths(this.symbol);
-      getMainFiles(this.symbol);
-      return;
+      // this.createSync({});
+      this.createEmptySync(this.createObjectFromKeys(keypath, {}));
+      // getMainPaths(this.symbol);
+      // getMainFiles(this.symbol);
+      // return;
     }
 
     objpath = this.getFileByKeys(keypath_);
@@ -774,7 +790,6 @@ export class jsonsplitter {
             .forEach((a) => {
               removeKeyFromKeysFile(this.symbol, [...keypath_, a]);
             });
-
 
           let mainfile = objpath.object_main;
           // removeKeyFromKeysFile(this.symbol, keypath_);
@@ -1061,7 +1076,7 @@ export class jsonsplitter {
 
       [a, ...rmFilePaths].forEach((b) => fs.rmSync(b));
 
-      this.createSync(obj);
+      this.createEmptySync(obj);
     });
 
     try {

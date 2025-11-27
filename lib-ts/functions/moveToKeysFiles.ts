@@ -21,7 +21,7 @@ import { _wf } from "./_wf";
 import { saveKeysFile } from "./saveKeysFile";
 let movingFiles: Record<string, Record<string, Promise<boolean>>> = {};
 
-export async function moveToKeysFilesSync(sym: string, mainFilePath: string) {
+export function moveToKeysFilesSync(sym: string, mainFilePath: string) {
   debugLog(sym, "moveToKeysFiles", ...arguments);
 
   let mainFile = i.splitterData[sym].mainFiles[mainFilePath]?.();
@@ -104,14 +104,9 @@ export async function moveToKeysFilesSync(sym: string, mainFilePath: string) {
     ).time.join(" ")})`
   );
 
-  await Promise.all(
-    chunks_.map((chunk_) => {
-      return new Promise<void>((resolve) => {
-        addKeyToFileKeys(sym, mainFilePath, chunk_, true);
-        resolve();
-      });
-    })
-  );
+  chunks_.map((chunk_) => {
+    addKeyToFileKeys(sym, mainFilePath, chunk_, true);
+  });
 
   fs.writeFileSync(mainFilePath + ".old", JSON.stringify(mainFile), "utf-8");
   mainFile.keysMoved = true;
@@ -152,7 +147,7 @@ export async function moveToKeysFiles(sym: string, mainFilePath: string) {
     return getKeyFromObject(movingFiles, [sym, mainFilePath]);
 
   let prom = new Promise((resolve, reject) => {
-    moveToKeysFilesSync(sym, mainFilePath).then(resolve).catch(reject);
+    moveToKeysFilesSync(sym, mainFilePath);
   });
   addKeysToObject(movingFiles, [sym, mainFilePath], prom);
 }

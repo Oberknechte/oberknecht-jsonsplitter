@@ -14,7 +14,7 @@ const debugLog_1 = require("./debugLog");
 const jsonsplitter_1 = require("../types/jsonsplitter");
 const saveKeysFile_1 = require("./saveKeysFile");
 let movingFiles = {};
-async function moveToKeysFilesSync(sym, mainFilePath) {
+function moveToKeysFilesSync(sym, mainFilePath) {
     (0, debugLog_1.debugLog)(sym, "moveToKeysFiles", ...arguments);
     let mainFile = __1.i.splitterData[sym].mainFiles[mainFilePath]?.();
     const moveStart = Date.now();
@@ -60,12 +60,9 @@ async function moveToKeysFilesSync(sym, mainFilePath) {
     `(Reverting Took ${(0, oberknecht_utils_1.cleanTime)(chunkRevertEnd - chunkCreateEnd, 4).time.join(" ")}; Total time took ${(0, oberknecht_utils_1.cleanTime)(chunkCreateEnd - chunkCreateStart, 4
     // @ts-ignore
     ).time.join(" ")})`);
-    await Promise.all(chunks_.map((chunk_) => {
-        return new Promise((resolve) => {
-            (0, addKeyToFileKeys_1.addKeyToFileKeys)(sym, mainFilePath, chunk_, true);
-            resolve();
-        });
-    }));
+    chunks_.map((chunk_) => {
+        (0, addKeyToFileKeys_1.addKeyToFileKeys)(sym, mainFilePath, chunk_, true);
+    });
     fs_1.default.writeFileSync(mainFilePath + ".old", JSON.stringify(mainFile), "utf-8");
     mainFile.keysMoved = true;
     delete mainFile.keys;
@@ -87,7 +84,7 @@ async function moveToKeysFiles(sym, mainFilePath) {
     if ((0, oberknecht_utils_1.getKeyFromObject)(movingFiles, [sym, mainFilePath]))
         return (0, oberknecht_utils_1.getKeyFromObject)(movingFiles, [sym, mainFilePath]);
     let prom = new Promise((resolve, reject) => {
-        moveToKeysFilesSync(sym, mainFilePath).then(resolve).catch(reject);
+        moveToKeysFilesSync(sym, mainFilePath);
     });
     (0, oberknecht_utils_1.addKeysToObject)(movingFiles, [sym, mainFilePath], prom);
 }

@@ -195,19 +195,31 @@ class jsonsplitter {
             return resolve();
         });
     };
+    // save = async () => {
+    //   return new Promise<void>(async (resolve, reject) => {
+    //     let filechangeIntervalExisted =
+    //       (i.splitterData[this.symbol].filechangeInterval ?? undefined) !==
+    //       undefined;
+    //     if (filechangeIntervalExisted)
+    //       clearInterval(i.splitterData[this.symbol].filechangeInterval);
+    //     fileChange(this.symbol);
+    //     if (filechangeIntervalExisted)
+    //       i.splitterData[this.symbol].filechangeInterval = setInterval(() => {
+    //         fileChange(this.symbol, true);
+    //       }, this._options.filechange_interval ?? 15000);
+    //     resolve();
+    //   });
+    // };
     save = async () => {
-        return new Promise(async (resolve, reject) => {
-            let filechangeIntervalExisted = (__1.i.splitterData[this.symbol].filechangeInterval ?? undefined) !==
-                undefined;
-            if (filechangeIntervalExisted)
-                clearInterval(__1.i.splitterData[this.symbol].filechangeInterval);
-            await (0, fileChange_1.fileChange)(this.symbol);
-            if (filechangeIntervalExisted)
-                __1.i.splitterData[this.symbol].filechangeInterval = setInterval(() => {
-                    (0, fileChange_1.fileChange)(this.symbol, true);
-                }, this._options.filechange_interval ?? 15000);
-            resolve();
-        });
+        let filechangeIntervalExisted = (__1.i.splitterData[this.symbol].filechangeInterval ?? undefined) !==
+            undefined;
+        if (filechangeIntervalExisted)
+            clearInterval(__1.i.splitterData[this.symbol].filechangeInterval);
+        (0, fileChange_1.fileChange)(this.symbol);
+        if (filechangeIntervalExisted)
+            __1.i.splitterData[this.symbol].filechangeInterval = setInterval(() => {
+                (0, fileChange_1.fileChange)(this.symbol, true);
+            }, this._options.filechange_interval ?? 15000);
     };
     clearCache = (excludeMainFiles) => {
         return (0, clearCache_1.clearCache)(this.symbol, excludeMainFiles);
@@ -378,7 +390,7 @@ class jsonsplitter {
             keynamesmatched: keynamesmatched,
         };
     };
-    createSync = (object) => {
+    createEmptySync = (object) => {
         let this_ = this;
         let objdir = this.getDirPathsByObject(object);
         function actualCreate(obj) {
@@ -389,30 +401,32 @@ class jsonsplitter {
             objmain.filenum = 0;
             objmain.filekeynum = 0;
             objmain.num = 0;
-            objmain.keys = {};
+            // objmain.keys = {};
             objmain.keynames = obj.path;
             if (keychunks.length === 0)
                 (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `0.json`]), this_.createObjectFromKeys(obj.path, {}));
             keychunks.forEach((keychunk, i) => {
                 let keychunk_ = {};
-                objmain.num += keychunk.length;
-                objmain.filekeynum = keychunk.length;
+                // objmain.num += keychunk.length;
+                // objmain.filekeynum = keychunk.length;
                 objmain.filenum = i;
-                objmain.keys = {};
-                keychunk.forEach((a) => {
-                    keychunk_[a] = obj.object[a];
-                    objmain.keys[a] = i;
-                });
+                // objmain.keys = {};
+                // keychunk.forEach((a) => {
+                //   keychunk_[a] = obj.object[a];
+                //   objmain.keys[a] = i;
+                // });
                 let chunkfile = this_.createObjectFromKeys(obj.path, keychunk_);
                 (0, _wf_1._wf)(this_.symbol, (0, _mainpath_1._mainpath)(this_.symbol, [...obj.path, `${i}.json`]), chunkfile);
             });
             (0, _wf_1._wf)(this_.symbol, objmainpath, objmain);
             // this_.recreateMainFiles();
-            (0, moveToKeysFiles_1.moveToKeysFiles)(this_.symbol, objmainpath);
+            (0, moveToKeysFiles_1.moveToKeysFilesSync)(this_.symbol, objmainpath);
         }
         function fromArr(a) {
             if (!Array.isArray(a))
                 return actualCreate(a);
+            if (a.length === 0)
+                return actualCreate({ path: [], object: {} });
             a.forEach((b) => {
                 if (Array.isArray(b))
                     return fromArr(b);
@@ -422,10 +436,11 @@ class jsonsplitter {
         fromArr(objdir);
         (0, getMainFiles_1.getMainFiles)(this.symbol);
         (0, getFiles_1.getFiles)(this.symbol);
+        (0, getKeysFiles_1.getKeysFiles)(this.symbol);
         return objdir;
     };
     create = (object) => {
-        this.createSync(object);
+        this.createEmptySync(object);
         return this.recreateMainFiles();
     };
     createBackup = () => {
@@ -491,10 +506,11 @@ class jsonsplitter {
         let keypath_ = (0, oberknecht_utils_1.convertToArray)(keypath);
         let objpath = this.getFileByKeys(keypath_);
         if ((0, oberknecht_utils_1.isNullUndefined)(objpath.object_main?.num)) {
-            this.createSync(this.addKeysToObjectSync({}, keypath_, value));
-            (0, getMainPaths_1.getMainPaths)(this.symbol);
-            (0, getMainFiles_1.getMainFiles)(this.symbol);
-            return;
+            // this.createSync({});
+            this.createEmptySync(this.createObjectFromKeys(keypath, {}));
+            // getMainPaths(this.symbol);
+            // getMainFiles(this.symbol);
+            // return;
         }
         objpath = this.getFileByKeys(keypath_);
         let mainpath = objpath.path_main;
@@ -751,7 +767,7 @@ class jsonsplitter {
             const obj = this.addAppendKeysToObjectSync({}, mainKeynames, this.getKeySync(mainKeynames));
             const rmFilePaths = Object.keys(this._files).filter((b) => new RegExp(`^${(0, oberknecht_utils_1.regexEscape)(a.split("/").slice(0, -1).join("/"))}\/\\d+\.json`).test(b));
             [a, ...rmFilePaths].forEach((b) => fs_1.default.rmSync(b));
-            this.createSync(obj);
+            this.createEmptySync(obj);
         });
         try {
             this.save();

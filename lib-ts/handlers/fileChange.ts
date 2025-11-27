@@ -4,8 +4,8 @@ import { _log } from "../functions/_log";
 import { _wf } from "../functions/_wf";
 import { appendDebugLogs } from "../functions/debugLog";
 
-export async function fileChange(sym: string, auto?: boolean) {
-  return new Promise<void>(async (resolve) => {
+export function fileChange(sym: string, auto?: boolean) {
+  // return new Promise<void>(async (resolve) => {
     let changed_files = 0;
     i.oberknechtEmitter[sym].emit(
       "filechange",
@@ -76,8 +76,8 @@ export async function fileChange(sym: string, auto?: boolean) {
       );
 
     if (i.splitterData[sym]?._options?.debugsLogDir)
-      await appendDebugLogs(sym).catch();
+      appendDebugLogs(sym);
 
-    resolve();
-  });
+  //   resolve();
+  // });
 }

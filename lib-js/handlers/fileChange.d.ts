@@ -1,1 +1,1 @@
-export declare function fileChange(sym: string, auto?: boolean): Promise<void>;
+export declare function fileChange(sym: string, auto?: boolean): void;

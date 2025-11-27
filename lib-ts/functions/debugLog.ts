@@ -62,10 +62,10 @@ export function debugLog(sym: string, debugName: string, ...functionArgs: any) {
   }
 
   if (appendLogTriggered === false)
-    appendDebugLogs(sym).catch((e) => console.error(e));
+    appendDebugLogs(sym);
 }
 
-export async function appendDebugLogs(sym) {
+export function appendDebugLogs(sym) {
   appendLogTriggered = true;
   if (appendLogs.length === 0) return (appendLogTriggered = false);
   let debugsLogDir = _mainpath(sym, i.splitterData[sym]._options.debugsLogDir);
@@ -76,7 +76,9 @@ export async function appendDebugLogs(sym) {
   let appendLogs_ = appendLogs.splice(0, appendLogs.length);
   fs.appendFileSync(filePath, appendLogs_.join("\n"));
 
-  sleep(5000).then(() => {
-    appendDebugLogs(sym);
-  });
+  appendLogTriggered = false;
+
+  // sleep(5000).then(() => {
+  //   appendDebugLogs(sym);
+  // });
 }
