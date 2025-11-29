@@ -439,8 +439,22 @@ class jsonsplitter {
         (0, getKeysFiles_1.getKeysFiles)(this.symbol);
         return objdir;
     };
-    create = (object) => {
-        this.createEmptySync(object);
+    createSync = (object) => {
+        let this_ = this;
+        // this.createEmptySync(object);
+        function _dive(obj, path) {
+            if ((0, oberknecht_utils_1.extendedTypeof)(obj) !== "json")
+                return console.error(Error("Object is not a valid JSON object, please fix your input used in createSync or adjust the child_folders_keys parameter to match the correct child key amount of your object"));
+            Object.keys(obj ?? {}).forEach((a) => {
+                if (path.length < (this_._options.child_folders_keys ?? 1)) {
+                    _dive(obj[a], [...path, a]);
+                }
+                else {
+                    this_.addKeySync([...path, a], obj[a]);
+                }
+            });
+        }
+        _dive(object, []);
         return this.recreateMainFiles();
     };
     createBackup = () => {

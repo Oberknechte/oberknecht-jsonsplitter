@@ -38,7 +38,10 @@ import { checkSize } from "../functions/checkSize";
 import { getKeysPaths } from "../functions/getKeysPaths";
 import { getKeysFiles } from "../functions/getKeysFiles";
 import { getKeysForMainFile } from "../functions/getKeysForMainFile";
-import { moveToKeysFiles, moveToKeysFilesSync } from "../functions/moveToKeysFiles";
+import {
+  moveToKeysFiles,
+  moveToKeysFilesSync,
+} from "../functions/moveToKeysFiles";
 import { getKeyFromKeysFiles } from "../functions/getKeyFromKeysFiles";
 import { addKeyToFileKeys } from "../functions/addKeyToFileKeys";
 import { removeKeyFromKeysFile } from "../functions/removeKeyFromKeysFile";
@@ -552,12 +555,12 @@ export class jsonsplitter {
 
       _wf(this_.symbol, objmainpath, objmain);
       // this_.recreateMainFiles();
-      moveToKeysFilesSync(this_.symbol, objmainpath)
+      moveToKeysFilesSync(this_.symbol, objmainpath);
     }
 
     function fromArr(a: any[]) {
       if (!Array.isArray(a)) return actualCreate(a);
-      if (a.length === 0) return actualCreate({path: [], object: {}});
+      if (a.length === 0) return actualCreate({ path: [], object: {} });
 
       a.forEach((b) => {
         if (Array.isArray(b)) return fromArr(b);
@@ -574,8 +577,28 @@ export class jsonsplitter {
     return objdir;
   };
 
-  create = (object: Record<string, any>): Promise<void> => {
-    this.createEmptySync(object);
+  createSync = (object: Record<string, any>): Promise<void> => {
+    let this_ = this;
+    // this.createEmptySync(object);
+
+    function _dive(obj: Record<string, any>, path: string[]) {
+      if (extendedTypeof(obj) !== "json")
+        return console.error(
+          Error(
+            "Object is not a valid JSON object, please fix your input used in createSync or adjust the child_folders_keys parameter to match the correct child key amount of your object"
+          )
+        );
+
+      Object.keys(obj ?? {}).forEach((a) => {
+        if (path.length < (this_._options.child_folders_keys ?? 1)) {
+          _dive(obj[a], [...path, a]);
+        } else {
+          this_.addKeySync([...path, a], obj[a]);
+        }
+      });
+    }
+
+    _dive(object, []);
     return this.recreateMainFiles();
   };
 
